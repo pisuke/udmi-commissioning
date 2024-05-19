@@ -8,6 +8,9 @@ flask
 flask-bootstrap
 numpy
 bokeh==2.4.3
+xlwt
+openpyxl
+odfpy
 pandas
 tabulate
 pyfiglet
