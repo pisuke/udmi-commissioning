@@ -7,11 +7,12 @@ bacpypes
 flask
 flask-bootstrap
 numpy
-bokeh
+bokeh==2.4.3
 pandas
-BAC0
+#BAC0
+#BAC0==21.12.03
 #BAC0==22.9.21
-#BAC0==23.07.03
+BAC0==23.07.03
 #click==8.0.4
 #Flask==2.0.3
 #itsdangerous==2.1.2
