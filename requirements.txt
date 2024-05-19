@@ -9,6 +9,8 @@ flask-bootstrap
 numpy
 bokeh==2.4.3
 pandas
+tabulate
+pyfiglet
 #BAC0
 #BAC0==21.12.03
 #BAC0==22.9.21
