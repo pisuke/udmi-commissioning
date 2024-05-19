@@ -1,0 +1,20 @@
+wheel
+netifaces
+pytz
+#bokeh== 0.12.5
+bacpypes
+#bacpypes3
+flask
+flask-bootstrap
+numpy
+bokeh
+pandas
+BAC0
+#BAC0==22.9.21
+#BAC0==23.07.03
+#click==8.0.4
+#Flask==2.0.3
+#itsdangerous==2.1.2
+#Jinja2==3.1.2
+#MarkupSafe==2.1.1
+#Werkzeug==2.0.3
