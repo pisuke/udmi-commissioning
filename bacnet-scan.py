@@ -74,10 +74,15 @@ def make_points(dev):
     return df
 
 def make_sheet(dfs, sheet_filename):
+    for k, v in dfs.items():
+        v.to_csv("%s.csv" % k)
+        print("Exported device %s point list to file %s.csv" % (k, k))
     with pd.ExcelWriter(sheet_filename) as writer:
         for k, v in dfs.items():
             v.to_excel(writer, sheet_name=k)
     print("Devices point lists written to file %s" % sheet_filename)
+    
+
 
 def main():
     show_title()
