@@ -46,7 +46,7 @@ def create_data(discovered_devices, network):
 
         devices_info[name] = make_device_info(each)
 
-        points[name] = make_points(devices[name])
+        points[name] = make_points(devices[name], name)
     return (devices, devices_info, points)
 
 def make_device_info(dev):
@@ -59,18 +59,26 @@ def make_device_info(dev):
             "device_id": device_id
         }
     df = pd.DataFrame.from_dict(lst, orient="index")
+    df.index.name = "property"
+    df.rename(columns={0: "value"}, inplace=True)
     return df
 
-def make_points(dev):
+def make_points(dev, dev_name):
     lst = {}
     for each in dev.points:
         lst[each.properties.name] = {
+            "device_name": dev_name,
             "value": each.lastValue,
             "units_or_states": each.properties.units_state,
             "description": each.properties.description,
             "object": "{}:{}".format(each.properties.type, each.properties.address),
+            "cloud_device_id": "",
+            "cloud_point_name": "",
+            "cloud_value": "",
+            "validation_status": ""
         }
     df = pd.DataFrame.from_dict(lst, orient="index")
+    df.index.name = "point_name"
     return df
 
 def make_sheet(dfs, sheet_filename):

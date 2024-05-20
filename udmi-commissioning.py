@@ -20,6 +20,7 @@ __status__ = "Dev"
 
 from os.path import exists
 from pprint import pprint
+import signal
 import json
 import argparse
 import pandas as pd
@@ -117,7 +118,7 @@ def print_message(message):
     
 
 def message_callback(message: pubsub_v1.subscriber.message.Message) -> None:
-    global devices_points
+    global devices, devices_points
     
     body = message.data
     device_id = message.attributes['deviceId']
@@ -131,21 +132,51 @@ def message_callback(message: pubsub_v1.subscriber.message.Message) -> None:
         # print(dir(points))
         for point in points.items():
             point_name = point[0]
-            value = point[1]['present_value']
-            print(device_id, point_name, value)
+            cloud_value = point[1]['present_value']
+            
             for device in devices_points:
                 device_points = devices_points[device]
                 match = device_points.loc[device_points['cloud_point_name'] == point_name]
-                if not match.equals(pd.DataFrame.empty):
-                    print(match)
+                if len(match)>0 and device_id==match['cloud_device_id'].values[0] and point_name==match['cloud_point_name'].values[0]:
+                    # BAC0 function to read point: bacnet.read('address object object_instance property')
+                    address = devices[device][2]
+                    object = match['object'].values[0].split(":")[0]
+                    object_instance = match['object'].values[0].split(":")[1]
+                    property = "presentValue"
+                    local_value = bacnet.read("%s %s %s %s" % (address, object, object_instance, property))
+                    print(20*"-")
+                    print(device_id, point_name, local_value, cloud_value)
+                    print(20*"-")
+                    devices_points[device].at['cloud_value',point_name] = cloud_value
+                    devices_points[device].at['value',point_name] = local_value
+                    if cloud_value == local_value:
+                        devices_points[device].at['validation_status',point_name] = "VALIDATED"
+                    else:
+                        devices_points[device].at['validation_status',point_name] = "DIFFERENT"
+                # print(devices_points[device])
+                print(tabulate(devices_points[device], headers='keys', tablefmt='psql'))
                     
     message.ack()
 
+devices = {}
 devices_points = {}
+default_handler = None
+bacnet = None
+
+def sigint_handler(num, frame):    
+    # Do something that cannot throw here (important)
+    print("Closing program")
+
+    return default_handler(num, frame) 
 
 def main():
-    global devices_points
+    global bacnet, devices, devices_points, default_handler
     show_title()
+
+    default_handler = signal.getsignal(signal.SIGINT)
+
+    # Assign the SIGINT handler
+    signal.signal(signal.SIGINT, sigint_handler)
 
     parser = argparse.ArgumentParser()
     group = parser.add_mutually_exclusive_group()
@@ -190,9 +221,12 @@ def main():
             else:
                 bacnet = BAC0.connect()
 
-        # discover = bacnet.discover(global_broadcast=True)
+        discover = bacnet.discover(global_broadcast=True)
 
-        # devices = []
+        for device in bacnet.devices:
+            devices[device[0]] = device
+
+        # print(devices)
 
         if exists(POINTS_LIST_INPUT_FILE):
             spreadsheet = pd.ExcelFile(POINTS_LIST_INPUT_FILE)
