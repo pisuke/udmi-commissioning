@@ -86,7 +86,7 @@ def make_sheet(dfs, excel_filename):
     print("Devices point lists written to file %s" % excel_filename)
 
 def get_sheet_dict(sheet_file, sheet_name):
-    dataframe = pd.read_excel(sheet_file, sheet_name, dtype=str)
+    dataframe = pd.read_excel(sheet_file, sheet_name, dtype=str, header=[0], index_col=[0])
 
     # Replace "nan" values with empty whitespaces
     dataframe = dataframe.fillna("")
@@ -138,23 +138,28 @@ def message_callback(message: pubsub_v1.subscriber.message.Message) -> None:
                 device_points = devices_points[device]
                 match = device_points.loc[device_points['cloud_point_name'] == point_name]
                 if len(match)>0 and device_id==match['cloud_device_id'].values[0] and point_name==match['cloud_point_name'].values[0]:
+                    # print(match)
+                    local_point_name = match.iloc[0].name
+                    # print(local_point_name)
                     # BAC0 function to read point: bacnet.read('address object object_instance property')
+                    # where address is the BACnet device IP address
                     address = devices[device][2]
                     object = match['object'].values[0].split(":")[0]
                     object_instance = match['object'].values[0].split(":")[1]
                     property = "presentValue"
                     local_value = bacnet.read("%s %s %s %s" % (address, object, object_instance, property))
-                    print(20*"-")
-                    print(device_id, point_name, local_value, cloud_value)
-                    print(20*"-")
-                    devices_points[device].at['cloud_value',point_name] = cloud_value
-                    devices_points[device].at['value',point_name] = local_value
+                    devices_points[device].at[local_point_name, 'cloud_value'] = cloud_value
+                    devices_points[device].at[local_point_name, 'value'] = local_value
+                    validation_status = ""
                     if cloud_value == local_value:
-                        devices_points[device].at['validation_status',point_name] = "VALIDATED"
+                        validation_status = "VALIDATED"
                     else:
-                        devices_points[device].at['validation_status',point_name] = "DIFFERENT"
-                # print(devices_points[device])
-                print(tabulate(devices_points[device], headers='keys', tablefmt='psql'))
+                        validation_status = "DIFFERENT"
+                    devices_points[device].at[local_point_name, 'validation_status'] = validation_status
+                    print(20*"-")
+                    print(device_id, point_name, local_value, cloud_value, validation_status)
+                    # print(devices_points[device])
+                    # print(tabulate(d  evices_points[device], headers='keys', tablefmt='psql'))
                     
     message.ack()
 
@@ -162,15 +167,17 @@ devices = {}
 devices_points = {}
 default_handler = None
 bacnet = None
+OUTPUT_SHEET_FILENAME = ""
 
 def sigint_handler(num, frame):    
-    # Do something that cannot throw here (important)
-    print("Closing program")
+    global devices_points, OUTPUT_SHEET_FILENAME
+    print("Closing program and saving %s file." % OUTPUT_SHEET_FILENAME)
+    make_sheet(devices_points, OUTPUT_SHEET_FILENAME)
 
     return default_handler(num, frame) 
 
 def main():
-    global bacnet, devices, devices_points, default_handler
+    global bacnet, devices, devices_points, default_handler, OUTPUT_SHEET_FILENAME
     show_title()
 
     default_handler = signal.getsignal(signal.SIGINT)
@@ -185,7 +192,7 @@ def main():
     parser.add_argument("-p", "--project", default="", help="GCP project id (required)")
     parser.add_argument("-s", "--sub", default="", help="GCP PubSub subscription (required)")
     parser.add_argument("-i", "--input", default="input.xlsx", help="input file containing the point list (optional, \
-                        the default is input.xlsc, accepted extensions are .xlsx and .ods)")
+                        the default is input.xlsx, accepted extensions are .xlsx and .ods)")
     parser.add_argument("-o", "--output",  default="output.xlsx", help="sheet file name for output results (optional, \
                         the default is output.xlsx, accepted extensions are .xlsx and .ods)")
     parser.add_argument("-a", "--address", default="", help="IP address of BACnet interface (optional)")
@@ -208,7 +215,7 @@ def main():
         BACNET_IP_ADDRESS = args.address
         # LITE_MODE = args.lite
         LITE_MODE = True
-        SHEET_FILENAME = args.output
+        OUTPUT_SHEET_FILENAME = args.output
 
         if LITE_MODE:
             if BACNET_IP_ADDRESS != "":
