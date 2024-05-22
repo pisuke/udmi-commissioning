@@ -75,7 +75,7 @@ If needed, specify the IP address of the network device that is connected to the
 ./bacnet-scan.py -x bacnet-scan-output.xls -a 192.168.1.100
 ```
 
-This process generate an output `.xlsx` file that should be used as input for the next process.
+This process generates an output `.xlsx` file that should be used as input for the next process.
 
 See below the content of the output `.xlsx` file.
 
