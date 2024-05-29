@@ -1,7 +1,7 @@
-point_name,device_name,value,units_or_states,description,object,cloud_device_id,cloud_point_name,cloud_value,validation_status
+,device_name,value,units_or_states,description,object,cloud_device_id,cloud_point_name,cloud_value,validation_status
 test_analogue_sensor,BAC0,19.0,degreesCelsius,Test Analogue Sensor,analogInput:0,,,,
-test_analogue_setpoint,BAC0,15.0,degreesCelsius,Test Analogue Setpoint,analogValue:0,,,,
+test_analogue_setpoint,BAC0,23.0,degreesCelsius,Test Analogue Setpoint,analogValue:0,,,,
 test_digital_sensor,BAC0,active,"(None, None)",Test Digital Sensor,binaryInput:0,,,,
 test_digital_setpoint,BAC0,inactive,"(None, None)",Test Digital Setpoint,binaryValue:0,,,,
-test_multistate_sensor,BAC0,17,"['Open', 'Closed', 'Ignored']",Test Multistate Sensor,multiStateInput:0,,,,
-test_multistate_setpoint,BAC0,17,"['Open', 'Closed', 'Ignored']",Test Multistate Setpoint,multiStateValue:0,,,,
+test_multistate_sensor,BAC0,21,"['Open', 'Closed', 'Ignored']",Test Multistate Sensor,multiStateInput:0,,,,
+test_multistate_setpoint,BAC0,25,"['Open', 'Closed', 'Ignored']",Test Multistate Setpoint,multiStateValue:0,,,,

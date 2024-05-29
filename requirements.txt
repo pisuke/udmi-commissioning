@@ -11,7 +11,7 @@ openpyxl
 odfpy
 pandas
 tabulate
-pyfiglet
+# pyfiglet
 google-cloud-pubsub
 #BAC0
 #BAC0==21.12.03

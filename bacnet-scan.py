@@ -23,13 +23,24 @@ import argparse
 import pandas as pd
 import BAC0
 from tabulate import tabulate
-from pyfiglet import *
+# from pyfiglet import *
+# import pyfiglet.fonts
 
 def show_title():
-  """Show the program title
-  """
-  f1 = Figlet(font='standard')
-  print(f1.renderText('BACnet-scan'))
+ """Show the program title
+ """
+#  f1 = Figlet(font='standard')
+#  print(f1.renderText('BACnet-scan'))
+
+ title = """
+ ____    _    ____            _                           
+| __ )  / \  / ___|_ __   ___| |_      ___  ___ __ _ _ __  
+|  _ \ / _ \| |   | '_ \ / _ \ __|____/ __|/ __/ _` | '_ \ 
+| |_) / ___ \ |___| | | |  __/ ||_____\__ \ (_| (_| | | | |
+|____/_/   \_\____|_| |_|\___|\__|    |___/\___\__,_|_| |_|
+ """
+
+ print(title)
 
 def create_data(discovered_devices, network):
     devices = {}
@@ -61,6 +72,7 @@ def make_device_info(dev):
     df = pd.DataFrame.from_dict(lst, orient="index")
     df.index.name = "property"
     df.rename(columns={0: "value"}, inplace=True)
+    print(tabulate(df, headers='keys', tablefmt='psql'))
     return df
 
 def make_points(dev, dev_name):
@@ -78,19 +90,23 @@ def make_points(dev, dev_name):
             "validation_status": ""
         }
     df = pd.DataFrame.from_dict(lst, orient="index")
+    df.to_csv("%s.csv" % dev_name)
     df.index.name = "point_name"
+    print(tabulate(df, headers='keys', tablefmt='psql'))
     return df
 
 def make_sheet(dfs, sheet_filename):
-    for k, v in dfs.items():
-        v.to_csv("%s.csv" % k)
-        print("Exported device %s point list to file %s.csv" % (k, k))
+    # for k, v in dfs.items():
+    #     v.to_csv("%s.csv" % k)
+    #     print("Exported device %s point list to file %s.csv" % (k, k))
     with pd.ExcelWriter(sheet_filename) as writer:
         for k, v in dfs.items():
-            v.to_excel(writer, sheet_name=k)
+            try:
+                v.to_excel(writer, sheet_name=k)
+            except:
+                pass
     print("Devices point lists written to file %s" % sheet_filename)
     
-
 
 def main():
     show_title()
@@ -123,9 +139,9 @@ def main():
 
     devices, devices_info, points = create_data(bacnet.devices, network=bacnet)
 
-    for device in devices:
-        print(tabulate(devices_info[device], headers='keys', tablefmt='psql'))
-        print(tabulate(points[device], headers='keys', tablefmt='psql'))
+    # for device in devices:
+    #     print(tabulate(devices_info[device], headers='keys', tablefmt='psql'))
+    #     print(tabulate(points[device], headers='keys', tablefmt='psql'))
     make_sheet(points, SHEET_FILENAME)
 
 if __name__ == "__main__":
