@@ -4,16 +4,14 @@ pytz
 bacpypes
 flask
 flask-bootstrap
-numpy
+numpy==1.23.1
 bokeh==2.4.3
 xlwt
 openpyxl
 odfpy
 pandas
 tabulate
-# pyfiglet
 google-cloud-pubsub
-#BAC0
 #BAC0==21.12.03
 #BAC0==22.9.21
 BAC0==23.07.03

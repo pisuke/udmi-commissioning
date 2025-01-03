@@ -13,7 +13,7 @@ __author__ = "Francesco Anselmo"
 __copyright__ = "Copyright 2024"
 __credits__ = ["Francesco Anselmo"]
 __license__ = "MIT"
-__version__ = "0.1"
+__version__ = "0.2"
 __maintainer__ = "Francesco Anselmo"
 __email__ = "francesco.anselmo@gmail.com"
 __status__ = "Dev"
@@ -23,14 +23,11 @@ import argparse
 import pandas as pd
 import BAC0
 from tabulate import tabulate
-# from pyfiglet import *
-# import pyfiglet.fonts
+import os
 
 def show_title():
  """Show the program title
  """
-#  f1 = Figlet(font='standard')
-#  print(f1.renderText('BACnet-scan'))
 
  title = """
  ____    _    ____            _                           
@@ -42,7 +39,7 @@ def show_title():
 
  print(title)
 
-def create_data(discovered_devices, network):
+def create_data(output_path, verbose, discovered_devices, network):
     devices = {}
     devices_info = {}
     points = {}
@@ -55,27 +52,63 @@ def create_data(discovered_devices, network):
             address, device_id, network, poll=0, object_list=custom_obj_list
         )
 
-        devices_info[name] = make_device_info(each)
+        devices_info[name] = make_device_info(output_path, verbose, each, network)
 
-        points[name] = make_points(devices[name], name)
+        points[name] = make_points(output_path, verbose, devices[name], name)
     return (devices, devices_info, points)
 
-def make_device_info(dev):
+def make_device_info(output_path, verbose, dev, network):
     lst = {}
+    
     name, vendor, address, device_id = dev
+
+    device = BAC0.device(
+            address, device_id, network, poll=0
+        )
+
+    try:
+        application_software_version = device.bacnet_properties["applicationSoftwareVersion"]
+    except:
+        application_software_version = ""
+    
+    try:
+        firmware_revision = device.bacnet_properties["firmwareRevision"]
+    except:
+        firmware_revision = ""
+    
+    try:
+        vendor_name = device.bacnet_properties["vendorName"]
+    except:
+        vendor_name = ""
+
+    try:
+        model_name = device.bacnet_properties["modelName"]
+    except:
+        model_name = ""
+
+    try:
+        serial_number = device.bacnet_properties["serialNumber"]
+    except:
+        serial_number = ""
+
     lst = {
             "device_name": name,
-            "device_vendor": vendor,
+            "device_vendor": vendor_name,
+            "device_model": model_name,
+            "device_firmware": firmware_revision,
+            "device_application_version": application_software_version,
+            "device_serial_number": serial_number,
             "ip_address": address,
             "device_id": device_id
         }
     df = pd.DataFrame.from_dict(lst, orient="index")
     df.index.name = "property"
     df.rename(columns={0: "value"}, inplace=True)
-    print(tabulate(df, headers='keys', tablefmt='psql'))
+    if verbose:
+        print(tabulate(df, headers='keys', tablefmt='psql'))
     return df
 
-def make_points(dev, dev_name):
+def make_points(output_path, verbose, dev, dev_name):
     lst = {}
     for each in dev.points:
         lst[each.properties.name] = {
@@ -90,16 +123,19 @@ def make_points(dev, dev_name):
             "validation_status": ""
         }
     df = pd.DataFrame.from_dict(lst, orient="index")
-    df.to_csv("%s.csv" % dev_name)
     df.index.name = "point_name"
-    print(tabulate(df, headers='keys', tablefmt='psql'))
+    df.to_csv(os.path.join(output_path, "%s.csv" % dev_name))
+    if verbose:
+        print(tabulate(df, headers='keys', tablefmt='psql'))
     return df
 
-def make_sheet(dfs, sheet_filename):
-    # for k, v in dfs.items():
-    #     v.to_csv("%s.csv" % k)
-    #     print("Exported device %s point list to file %s.csv" % (k, k))
+def make_sheet(devices_df, dfs, sheet_filename):
     with pd.ExcelWriter(sheet_filename) as writer:
+        for k, v in devices_df.items():
+            try:
+                v.to_excel(writer, sheet_name=k)
+            except:
+                pass
         for k, v in dfs.items():
             try:
                 v.to_excel(writer, sheet_name=k)
@@ -107,7 +143,6 @@ def make_sheet(dfs, sheet_filename):
                 pass
     print("Devices point lists written to file %s" % sheet_filename)
     
-
 def main():
     show_title()
 
@@ -137,12 +172,22 @@ def main():
     
     discover = bacnet.discover(global_broadcast=True) 
 
-    devices, devices_info, points = create_data(bacnet.devices, network=bacnet)
+    output_path = "bacnet_devices"
 
-    # for device in devices:
-    #     print(tabulate(devices_info[device], headers='keys', tablefmt='psql'))
-    #     print(tabulate(points[device], headers='keys', tablefmt='psql'))
-    make_sheet(points, SHEET_FILENAME)
+    if not os.path.exists(output_path):
+        os.makedirs(output_path)
+
+    devices_df = pd.DataFrame()
+    for device in bacnet.devices:
+        devices_df = pd.concat( [devices_df, make_device_info(output_path, args.verbose, device, network=bacnet)], ignore_index=True, axis=1)
+    devices_df = devices_df.transpose()
+    devices_df.index.name = "number"
+    print(tabulate(devices_df, headers='keys', tablefmt='psql'))
+    devices_df.to_csv(os.path.join(output_path, "%s.csv" % "bacnet_devices_list"))
+
+    devices, devices_info, points = create_data(output_path, args.verbose, bacnet.devices, network=bacnet)
+
+    make_sheet(devices_df, points, os.path.join(output_path, SHEET_FILENAME))
 
 if __name__ == "__main__":
     main()
