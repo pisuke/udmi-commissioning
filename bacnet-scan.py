@@ -131,11 +131,12 @@ def make_points(output_path, verbose, dev, dev_name):
 
 def make_sheet(devices_df, dfs, sheet_filename):
     with pd.ExcelWriter(sheet_filename) as writer:
-        for k, v in devices_df.items():
-            try:
-                v.to_excel(writer, sheet_name=k)
-            except:
-                pass
+        devices_df.to_excel(writer, sheet_name="devices")
+        # for k, v in devices_df.items():
+        #     try:
+        #         v.to_excel(writer, sheet_name=k)
+        #     except:
+        #         pass
         for k, v in dfs.items():
             try:
                 v.to_excel(writer, sheet_name=k)
