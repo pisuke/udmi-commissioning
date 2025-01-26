@@ -10,7 +10,7 @@
 """
 
 __author__ = "Francesco Anselmo"
-__copyright__ = "Copyright 2024"
+__copyright__ = "Copyright 2025"
 __credits__ = ["Francesco Anselmo"]
 __license__ = "MIT"
 __version__ = "0.2"
@@ -26,18 +26,18 @@ from tabulate import tabulate
 import os
 
 def show_title():
- """Show the program title
- """
+    """Show the program title
+    """
 
- title = """
- ____    _    ____            _                           
-| __ )  / \  / ___|_ __   ___| |_      ___  ___ __ _ _ __  
-|  _ \ / _ \| |   | '_ \ / _ \ __|____/ __|/ __/ _` | '_ \ 
-| |_) / ___ \ |___| | | |  __/ ||_____\__ \ (_| (_| | | | |
-|____/_/   \_\____|_| |_|\___|\__|    |___/\___\__,_|_| |_|
- """
+    title = """
+    ____    _    ____            _                           
+    | __ )  / \  / ___|_ __   ___| |_      ___  ___ __ _ _ __  
+    |  _ \ / _ \| |   | '_ \ / _ \ __|____/ __|/ __/ _` | '_ \ 
+    | |_) / ___ \ |___| | | |  __/ ||_____\__ \ (_| (_| | | | |
+    |____/_/   \_\____|_| |_|\___|\__|    |___/\___\__,_|_| |_|
+    """
 
- print(title)
+    print(title)
 
 def create_data(output_path, verbose, discovered_devices, network):
     devices = {}
@@ -132,11 +132,6 @@ def make_points(output_path, verbose, dev, dev_name):
 def make_sheet(devices_df, dfs, sheet_filename):
     with pd.ExcelWriter(sheet_filename) as writer:
         devices_df.to_excel(writer, sheet_name="devices")
-        # for k, v in devices_df.items():
-        #     try:
-        #         v.to_excel(writer, sheet_name=k)
-        #     except:
-        #         pass
         for k, v in dfs.items():
             try:
                 v.to_excel(writer, sheet_name=k)

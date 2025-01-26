@@ -10,7 +10,7 @@
 """
 
 __author__ = "Francesco Anselmo"
-__copyright__ = "Copyright 2024"
+__copyright__ = "Copyright 2025"
 __credits__ = ["Francesco Anselmo"]
 __license__ = "MIT"
 __version__ = "0.1"

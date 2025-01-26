@@ -15,3 +15,4 @@ google-cloud-pubsub
 #BAC0==21.12.03
 #BAC0==22.9.21
 BAC0==23.07.03
+cryptography
