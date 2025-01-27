@@ -174,8 +174,8 @@ TEMPLATE_MANGO_UDMI_PUBLISHER = Template("""
     },
     "gateway": true,
     "proxyDevices": ${mango_proxydevices_array},
-    "rsaPrivateKey": "${mango_rsa_privatekey}",
-    "rsaPublicKey": "${mango_rsa_publickey}",
+    "privateKey": "${mango_rsa_privatekey}",
+    "publicKey": "${mango_rsa_publickey}",
     "cacheDiscardSize": 50000,
     "cacheWarningSize": 10000,
     "publishAttributeChanges": false,
@@ -385,7 +385,7 @@ def main():
                     public_exponent=65537,
                     key_size=2048
                 )
-
+                
                 private_key = key.private_bytes(
                     crypto_serialization.Encoding.PEM,
                     crypto_serialization.PrivateFormat.TraditionalOpenSSL,
@@ -396,6 +396,8 @@ def main():
                     crypto_serialization.Encoding.PEM,
                     crypto_serialization.PublicFormat.PKCS1
                 )
+                
+                # print(dir(public_key))
               
                 output_mango_udmi_publisher_file.write('{\n  "publishers": [\n')
               
@@ -446,8 +448,8 @@ def main():
                   mango_publisher_xid=mango_publisher_xid,
                   mango_publisher_name=mango_publisher_name,
                   mango_proxydevices_array=mango_proxydevices_array_string,
-                  mango_rsa_privatekey=private_key,
-                  mango_rsa_publickey=public_key
+                  mango_rsa_privatekey=private_key.decode('utf-8').replace("\n", "\\n"),
+                  mango_rsa_publickey=public_key.decode('utf-8').replace("\n", "\\n")
                 ))
                 
                 output_mango_udmi_publisher_file.write('],"publishedPoints": [')
