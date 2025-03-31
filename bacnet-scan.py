@@ -78,6 +78,8 @@ def make_device_info(output_path, verbose, dev, network):
     try:
         print("network: ", network)
         print(dir(network))
+        print(network.networkNumber)
+        print(network.what_is_network_number)
     except:
         pass
     
