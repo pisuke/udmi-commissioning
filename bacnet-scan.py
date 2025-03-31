@@ -229,7 +229,7 @@ def main():
     print(tabulate(devices_df, headers='keys', tablefmt='psql'))
     devices_df.to_csv(os.path.join(output_path, "%s.csv" % "bacnet_devices_list"))
 
-    devices, devices_info, points = create_data(output_path, args.verbose, bacnet.devices, network=bacnet, DEVICE_ONLY_SCAN)
+    devices, devices_info, points = create_data(output_path, args.verbose, bacnet.devices, network=bacnet, devicesonly=DEVICE_ONLY_SCAN)
 
     make_sheet(devices_df, points, os.path.join(output_path, SHEET_FILENAME))
 
