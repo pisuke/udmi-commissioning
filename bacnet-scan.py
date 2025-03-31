@@ -82,6 +82,12 @@ def make_device_info(output_path, verbose, dev, network):
         pass
     
     try:
+        print((device))
+        print(dir(device))
+    except:
+        pass
+    
+    try:
         description = device.bacnet_properties["description"]
     except:
         description = ""
