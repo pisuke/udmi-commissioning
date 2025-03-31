@@ -68,6 +68,18 @@ def make_device_info(output_path, verbose, dev, network):
         )
     
     print(device.bacnet_properties)
+    print((device.deviceAddressBinding)
+    print(dir(device.deviceAddressBinding))
+    
+    try:
+        description = device.bacnet_properties["description"]
+    except:
+        description = ""
+        
+    try:
+        location = device.bacnet_properties["location"]
+    except:
+        location = ""
 
     try:
         application_software_version = device.bacnet_properties["applicationSoftwareVersion"]
@@ -93,17 +105,14 @@ def make_device_info(output_path, verbose, dev, network):
         serial_number = device.bacnet_properties["serialNumber"]
     except:
         serial_number = ""
-        
-    try:
-        network = device.bacnet_properties["networkNumber"]
-    except:
-        network = ""
 
     lst = {
             "device_name": name,
             "device_vendor": vendor_name,
             "device_model": model_name,
             "device_firmware": firmware_revision,
+            "description": description,
+            "location": location,
             "device_application_version": application_software_version,
             "device_serial_number": serial_number,
             "ip_address": address,
