@@ -134,7 +134,7 @@ def make_device_info(output_path, verbose, dev, network):
             "device_serial_number": serial_number,
             "ip_address": address,
             "device_id": device_id,
-            "network": network.networkNumber
+            "network": device.properties.networkNumber
         }
     df = pd.DataFrame.from_dict(lst, orient="index")
     df.index.name = "property"
