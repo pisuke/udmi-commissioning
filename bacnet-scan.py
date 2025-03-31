@@ -182,7 +182,7 @@ def main():
     parser.add_argument("-a", "--address", default="", help="IP address of BACnet interface (optional)")
     parser.add_argument("-n", "--networks", default="", help="comma separated target list of BACnet networks (optional)")
     parser.add_argument("-b", "--bacnetid", default="", help="restrict the enumeration to only one device with this BACnet ID (optional)")
-    parser.add_argument("-d", "--deviceonly", action="store_true", default=False, help="only execute a BACnet WHOIS device scane with no point enumeration (optional)")
+    parser.add_argument("-d", "--deviceonly", action="store_true", default=False, help="only execute a BACnet WHOIS device scan with no point enumeration (optional)")
 
     args = parser.parse_args()
 
@@ -196,7 +196,7 @@ def main():
     BACNET_IP_ADDRESS = args.address
     SHEET_FILENAME = args.export
     BACNET_NETWORKS = args.networks
-    BACNET_DEVICE_ID = int(args.bacnetid)
+    BACNET_DEVICE_ID = args.bacnetid
     DEVICE_ONLY_SCAN = args.deviceonly
 
     if BACNET_IP_ADDRESS != "":        
@@ -214,6 +214,7 @@ def main():
         if BACNET_DEVICE_ID == "":
             discover = bacnet.discover(global_broadcast=True, networks=bacnet_networks) 
         else:
+            BACNET_DEVICE_ID = int(BACNET_DEVICE_ID)
             discover = bacnet.discover(global_broadcast=True, limits=(BACNET_DEVICE_ID,BACNET_DEVICE_ID), networks=bacnet_networks)
 
     output_path = "bacnet_devices"
