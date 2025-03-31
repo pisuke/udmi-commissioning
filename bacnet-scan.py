@@ -83,6 +83,7 @@ def make_device_info(output_path, verbose, dev, network):
     
     try:
         print((device))
+        print((device.properties))
         print(dir(device))
     except:
         pass
