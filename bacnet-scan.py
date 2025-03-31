@@ -76,14 +76,14 @@ def make_device_info(output_path, verbose, dev, network):
         pass
     
     try:
-        print((network))
+        print("network: ", network)
         print(dir(network))
     except:
         pass
     
     try:
-        print((device))
-        print((device.properties))
+        print("device:", device)
+        print("device properties:", device.properties)
         print(dir(device))
     except:
         pass
@@ -134,7 +134,7 @@ def make_device_info(output_path, verbose, dev, network):
             "device_serial_number": serial_number,
             "ip_address": address,
             "device_id": device_id,
-            "network": device.properties.networkNumber
+            "network": device.bacnet_properties.networkNumber
         }
     df = pd.DataFrame.from_dict(lst, orient="index")
     df.index.name = "property"
