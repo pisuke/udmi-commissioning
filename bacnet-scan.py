@@ -68,8 +68,12 @@ def make_device_info(output_path, verbose, dev, network):
         )
     
     print(device.bacnet_properties)
-    print((device.deviceAddressBinding))
-    print(dir(device.deviceAddressBinding))
+    
+    try:
+        print((device.deviceAddressBinding))
+        print(dir(device.deviceAddressBinding))
+    except:
+        pass
     
     try:
         description = device.bacnet_properties["description"]
