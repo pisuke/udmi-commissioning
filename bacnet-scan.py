@@ -93,7 +93,7 @@ def make_device_info(output_path, verbose, dev, network):
         serial_number = ""
         
     try:
-        network = device.bacnet_properties["network"]
+        network = device.bacnet_properties["networkNumber"]
     except:
         network = ""
 
