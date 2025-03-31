@@ -66,6 +66,8 @@ def make_device_info(output_path, verbose, dev, network):
     device = BAC0.device(
             address, device_id, network, poll=0
         )
+    
+    print(device.bacnet_properties)
 
     try:
         application_software_version = device.bacnet_properties["applicationSoftwareVersion"]
