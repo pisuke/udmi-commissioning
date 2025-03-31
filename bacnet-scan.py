@@ -67,29 +67,29 @@ def make_device_info(output_path, verbose, dev, network):
             address, device_id, network, poll=0
         )
     
-    print("device bacnet properties:", device.bacnet_properties)
+    # print("device bacnet properties:", device.bacnet_properties)
     
-    try:
-        print("device address binding:", device.deviceAddressBinding)
-        print(dir(device.deviceAddressBinding))
-    except:
-        pass
+    # try:
+    #     print("device address binding:", device.deviceAddressBinding)
+    #     print(dir(device.deviceAddressBinding))
+    # except:
+    #     pass
     
-    try:
-        print("network: ", device.properties.network)
-        print(dir(device.properties.network))
-        print(device.properties.network.networkNumber)
-        print(device.properties.network.what_is_network_number)
-        print(dir(device.properties.network.what_is_network_number))
-    except:
-        pass
+    # try:
+    #     print("network: ", device.properties.network)
+    #     print(dir(device.properties.network))
+    #     print(device.properties.network.networkNumber)
+    #     print(device.properties.network.what_is_network_number)
+    #     print(dir(device.properties.network.what_is_network_number))
+    # except:
+    #     pass
     
-    try:
-        print("device:", device)
-        print("device properties:", device.properties)
-        print(dir(device))
-    except:
-        pass
+    # try:
+    #     print("device:", device)
+    #     print("device properties:", device.properties)
+    #     print(dir(device))
+    # except:
+    #     pass
     
     try:
         description = device.bacnet_properties["description"]
