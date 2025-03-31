@@ -39,7 +39,7 @@ def show_title():
 
     print(title)
 
-def create_data(output_path, verbose, discovered_devices, network):
+def create_data(output_path, verbose, discovered_devices, network, devicesonly):
     devices = {}
     devices_info = {}
     points = {}
@@ -54,7 +54,8 @@ def create_data(output_path, verbose, discovered_devices, network):
 
         devices_info[name] = make_device_info(output_path, verbose, each, network)
 
-        points[name] = make_points(output_path, verbose, devices[name], name)
+        if not devicesonly:
+            points[name] = make_points(output_path, verbose, devices[name], name)
     return (devices, devices_info, points)
 
 def make_device_info(output_path, verbose, dev, network):
@@ -90,6 +91,11 @@ def make_device_info(output_path, verbose, dev, network):
         serial_number = device.bacnet_properties["serialNumber"]
     except:
         serial_number = ""
+        
+    try:
+        network = device.bacnet_properties["network"]
+    except:
+        network = ""
 
     lst = {
             "device_name": name,
@@ -99,7 +105,8 @@ def make_device_info(output_path, verbose, dev, network):
             "device_application_version": application_software_version,
             "device_serial_number": serial_number,
             "ip_address": address,
-            "device_id": device_id
+            "device_id": device_id,
+            "network": network
         }
     df = pd.DataFrame.from_dict(lst, orient="index")
     df.index.name = "property"
@@ -222,7 +229,7 @@ def main():
     print(tabulate(devices_df, headers='keys', tablefmt='psql'))
     devices_df.to_csv(os.path.join(output_path, "%s.csv" % "bacnet_devices_list"))
 
-    devices, devices_info, points = create_data(output_path, args.verbose, bacnet.devices, network=bacnet)
+    devices, devices_info, points = create_data(output_path, args.verbose, bacnet.devices, network=bacnet, DEVICE_ONLY_SCAN)
 
     make_sheet(devices_df, points, os.path.join(output_path, SHEET_FILENAME))
 
