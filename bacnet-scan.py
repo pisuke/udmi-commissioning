@@ -13,7 +13,7 @@ __author__ = "Francesco Anselmo"
 __copyright__ = "Copyright 2025"
 __credits__ = ["Francesco Anselmo"]
 __license__ = "MIT"
-__version__ = "0.2"
+__version__ = "0.3"
 __maintainer__ = "Francesco Anselmo"
 __email__ = "francesco.anselmo@gmail.com"
 __status__ = "Dev"
@@ -139,15 +139,43 @@ def make_sheet(devices_df, dfs, sheet_filename):
                 pass
     print("Devices point lists written to file %s" % sheet_filename)
     
+
+def string_to_integer_list(comma_separated_string):
+  """Converts a comma-separated string of numbers to a list of integers.
+
+  Args:
+    comma_separated_string: A string containing numbers separated by commas.
+
+  Returns:
+    A list of integers. Returns an empty list if the input string is empty
+    or contains only commas. Raises a ValueError if any element cannot be
+    converted to an integer.
+  """
+  if not comma_separated_string.strip():
+    return []
+
+  string_numbers = comma_separated_string.split(',')
+  integer_list = []
+  for s in string_numbers:
+    try:
+      number = int(s.strip())  # Remove leading/trailing whitespace and convert to integer
+      integer_list.append(number)
+    except ValueError:
+      raise ValueError(f"Invalid integer format: '{s.strip()}'")
+  return integer_list
+    
 def main():
     show_title()
 
     parser = argparse.ArgumentParser()
     group = parser.add_mutually_exclusive_group()
-    group.add_argument("-v", "--verbose", action="store_true", default=False, help="increase the verbosity level")
+    group.add_argument("-v", "--verbose", action="store_true", default=False, help="increase the verbosity level (optional)")
     parser.add_argument("-x", "--export",  default="bacnet-scan.xlsx", help="spreadsheet file name for scan results (optional), \
                         supported extensions are .xlsx and .ods")
     parser.add_argument("-a", "--address", default="", help="IP address of BACnet interface (optional)")
+    parser.add_argument("-n", "--networks", default="", help="comma separated target list of BACnet networks (optional)")
+    parser.add_argument("-b", "--bacnetid", default="", help="restrict the enumeration to only one device with this BACnet ID (optional)")
+    parser.add_argument("-d", "--deviceonly", action="store_true", default=False, help="only execute a BACnet WHOIS device scane with no point enumeration (optional)")
 
     args = parser.parse_args()
 
@@ -160,19 +188,32 @@ def main():
 
     BACNET_IP_ADDRESS = args.address
     SHEET_FILENAME = args.export
+    BACNET_NETWORKS = args.networks
+    BACNET_DEVICE_ID = int(args.bacnetid)
+    DEVICE_ONLY_SCAN = args.deviceonly
 
-    if BACNET_IP_ADDRESS != "":
+    if BACNET_IP_ADDRESS != "":        
         bacnet = BAC0.lite(ip=BACNET_IP_ADDRESS)
     else:
         bacnet = BAC0.lite()
     
-    discover = bacnet.discover(global_broadcast=True) 
+    if BACNET_NETWORKS == "":
+        if BACNET_DEVICE_ID == "":
+            discover = bacnet.discover(global_broadcast=True) 
+        else:
+            discover = bacnet.discover(global_broadcast=True, limits=(BACNET_DEVICE_ID,BACNET_DEVICE_ID))
+    else:
+        bacnet_networks = string_to_integer_list(BACNET_NETWORKS)
+        if BACNET_DEVICE_ID == "":
+            discover = bacnet.discover(global_broadcast=True, networks=bacnet_networks) 
+        else:
+            discover = bacnet.discover(global_broadcast=True, limits=(BACNET_DEVICE_ID,BACNET_DEVICE_ID), networks=bacnet_networks)
 
     output_path = "bacnet_devices"
 
     if not os.path.exists(output_path):
         os.makedirs(output_path)
-
+        
     devices_df = pd.DataFrame()
     for device in bacnet.devices:
         devices_df = pd.concat( [devices_df, make_device_info(output_path, args.verbose, device, network=bacnet)], ignore_index=True, axis=1)
