@@ -259,6 +259,8 @@ def main():
         elif BACNET_RANGE != "":
             BACNET_RANGE_START = BACNET_RANGE.split(",")[0]
             BACNET_RANGE_FINISH = BACNET_RANGE.split(",")[1]
+            print("start:", BACNET_RANGE_START)
+            print("finish:", BACNET_RANGE_FINISH)
             discover = bacnet.discover(global_broadcast=BACNET_GLOBAL_SCAN, limits=(BACNET_RANGE_START,BACNET_RANGE_FINISH), networks=bacnet_networks)
 
     output_path = "bacnet_devices"
