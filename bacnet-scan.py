@@ -24,6 +24,7 @@ import pandas as pd
 import BAC0
 from tabulate import tabulate
 import os
+import re
 
 def show_title():
     """Show the program title
