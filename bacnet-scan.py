@@ -30,7 +30,7 @@ def show_title():
     """
 
     title = """
-    ____    _    ____            _                           
+     ____    _    ____            _                           
     | __ )  / \  / ___|_ __   ___| |_      ___  ___ __ _ _ __  
     |  _ \ / _ \| |   | '_ \ / _ \ __|____/ __|/ __/ _` | '_ \ 
     | |_) / ___ \ |___| | | |  __/ ||_____\__ \ (_| (_| | | | |
@@ -141,8 +141,8 @@ def make_device_info(output_path, verbose, dev, network):
             "device_application_version": application_software_version,
             "device_serial_number": serial_number,
             "ip_address": address,
-            "device_id": device_id,
-            "network": network_number
+            "device_id": device_id
+            # "network": network_number
         }
     df = pd.DataFrame.from_dict(lst, orient="index")
     df.index.name = "property"
@@ -217,8 +217,10 @@ def main():
                         supported extensions are .xlsx and .ods")
     parser.add_argument("-a", "--address", default="", help="IP address of BACnet interface (optional)")
     parser.add_argument("-n", "--networks", default="", help="comma separated target list of BACnet networks (optional)")
-    parser.add_argument("-b", "--bacnetid", default="", help="restrict the enumeration to only one device with this BACnet ID (optional)")
-    parser.add_argument("-d", "--deviceonly", action="store_true", default=False, help="only execute a BACnet WHOIS device scan with no point enumeration (optional)")
+    parser.add_argument("-b", "--bacnetid", default="", help="restrict the scan to only one device with this BACnet ID (optional)")
+    parser.add_argument("-r", "--range", default="",  help="restrict the scan to a device range in the format BACnet_ID_start,BACnet_ID_finish as in 1234,5678 (optional)")
+    parser.add_argument("-d", "--deviceonly", action="store_true", default=False, default=False, help="only execute a BACnet WHOIS device scan with no point enumeration (optional)")
+    parser.add_argument("-g", "--globalscan", action="store_true", default=False, help="execute a global broadcast BACnet scan (optional)")
 
     args = parser.parse_args()
 
@@ -233,6 +235,8 @@ def main():
     SHEET_FILENAME = args.export
     BACNET_NETWORKS = args.networks
     BACNET_DEVICE_ID = args.bacnetid
+    BACNET_RANGE = args.range
+    BACNET_GLOBAL_SCAN = args.globalscan
     DEVICE_ONLY_SCAN = args.deviceonly
 
     if BACNET_IP_ADDRESS != "":        
@@ -242,16 +246,20 @@ def main():
     
     if BACNET_NETWORKS == "":
         if BACNET_DEVICE_ID == "":
-            discover = bacnet.discover(global_broadcast=True) 
+            discover = bacnet.discover(global_broadcast=BACNET_GLOBAL_SCAN) 
         else:
-            discover = bacnet.discover(global_broadcast=True, limits=(BACNET_DEVICE_ID,BACNET_DEVICE_ID))
+            discover = bacnet.discover(global_broadcast=BACNET_GLOBAL_SCAN, limits=(BACNET_DEVICE_ID,BACNET_DEVICE_ID))
     else:
         bacnet_networks = string_to_integer_list(BACNET_NETWORKS)
         if BACNET_DEVICE_ID == "":
-            discover = bacnet.discover(global_broadcast=True, networks=bacnet_networks) 
-        else:
+            discover = bacnet.discover(global_broadcast=BACNET_GLOBAL_SCAN, networks=bacnet_networks) 
+        elif BACNET_DEVICE_ID != "":
             BACNET_DEVICE_ID = int(BACNET_DEVICE_ID)
-            discover = bacnet.discover(global_broadcast=True, limits=(BACNET_DEVICE_ID,BACNET_DEVICE_ID), networks=bacnet_networks)
+            discover = bacnet.discover(global_broadcast=BACNET_GLOBAL_SCAN, limits=(BACNET_DEVICE_ID,BACNET_DEVICE_ID), networks=bacnet_networks)
+        elif BACNET_RANGE != "":
+            BACNET_RANGE_START = BACNET_RANGE.split(",")[0]
+            BACNET_RANGE_FINISH = BACNET_RANGE.split(",")[1]
+            discover = bacnet.discover(global_broadcast=BACNET_GLOBAL_SCAN, limits=(BACNET_RANGE_START,BACNET_RANGE_FINISH), networks=bacnet_networks)
 
     output_path = "bacnet_devices"
 

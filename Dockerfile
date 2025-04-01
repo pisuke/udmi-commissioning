@@ -1,42 +1,26 @@
-# Use Ubuntu 18.04 as the base image
 FROM ubuntu:18.04
 
-# Install necessary dependencies
-RUN apt-get update && apt-get install -y \
-    python3 \
-    python3-pip \
-    build-essential \
-    zlib1g-dev \
-    && rm -rf /var/lib/apt/lists/*
+WORKDIR /tmp
+RUN apt update && apt -y install build-essential zlib1g-dev libncurses5-dev libgdbm-dev libnss3-dev libssl-dev libreadline-dev libffi-dev libsqlite3-dev wget 
+RUN wget https://www.openssl.org/source/openssl-1.1.1g.tar.gz 
+RUN wget https://www.python.org/ftp/python/3.12.8/Python-3.12.8.tgz
+RUN tar -xzvf Python-3.12.8.tgz
 
-# Install PyInstaller
-RUN pip3 install --no-cache-dir pyinstaller
+RUN apt -y remove openssl
+RUN tar -zxf openssl-1.1.1g.tar.gz
+RUN tar -xzvf Python-3.12.8.tgz
 
-# Create a working directory
-WORKDIR /app
+WORKDIR /tmp/openssl-1.1.1g
+RUN ./config
+RUN make
+RUN make install
+RUN cp -r libssl.so.1.1 /usr/lib && cp -r libcrypto.so.1.1 /usr/lib
 
-# Copy the Python script into the container
-COPY bacnet-scan.py /app/bacnet-scan.py
+WORKDIR /tmp/Python-3.12.8
+RUN ./configure --enable-optimizations --with-openssl=/usr/local --with-ensurepip=install CFLAGS="-I/usr/include" LDFLAGS="-Wl,-rpath /usr/local/lib" --enable-shared --prefix=/usr/local
+RUN make
+RUN make install
 
-# Install dependencies
-COPY requirements.txt /app/requirements.txt
-RUN pip3 install -r requirements.txt
+RUN python3 -m pip install pyinstaller
 
-# Run PyInstaller to create the executable
-RUN pyinstaller --onefile bacnet-scan.py
-
-# Create a directory to store the output executable
-RUN mkdir /output
-
-# Copy the executable to the output directory
-RUN cp /app/dist/bacnet-scan /output/bacnet-scan
-
-# Set the output directory as the volume
-VOLUME /output
-
-# List files in the /output folder
-CMD ["bash", "-c", "ls -la /output"]
-
-# Define the command to run when the container starts (not needed in this case, only building.)
-#CMD ["/output/bacnet-scan"]
-CMD ["bash", "-c", "sleep 10; echo 'Executable built. Check the mounted volume.'"]
+WORKDIR /root

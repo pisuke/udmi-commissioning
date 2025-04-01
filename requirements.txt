@@ -1,21 +1,58 @@
-wheel
-netifaces
-pytz
-bacpypes
+# wheel
+# netifaces
+# pytz
+# bacpypes
+# flask
+# flask-bootstrap
+# pillow==5.1.0
+# #numpy==1.23.1
+# numpy==1.19.5
+# #bokeh==2.4.3
+# bokeh==2.3.3
+# xlwt
+# openpyxl
+# odfpy
+# pandas
+# tabulate
+# google-cloud-pubsub
+# #BAC0==21.12.03
+# #BAC0==22.9.21
+# BAC0==23.07.03
+# cryptography
+
+BAC0==23.7.3
+bacpypes==0.18.7
+#bokeh
+cffi==1.16.0
+colorama==0.4.6
+cryptography==43.0.0
+et-xmlfile==1.1.0
+iniconfig==2.0.0
 flask
 flask-bootstrap
-pillow==5.1.0
-#numpy==1.23.1
-numpy==1.19.5
-#bokeh==2.4.3
-bokeh==2.3.3
+netifaces
+numpy==2.0.1
+openpyxl==3.1.5
+packaging==24.1
+pandas==2.2.2
+pd==0.0.4
+pillow
+pluggy==1.5.0
+prometheus_client==0.20.0
+pycparser==2.22
+pytz
+PyJWT==2.9.0
+pyOpenSSL==24.2.1
+pytest==8.3.2
+python-dateutil==2.9.0.post0
+pytz==2024.1
+# scapy==2.6.1
+setuptools
+six==1.16.0
+tzdata==2024.1
+pyasyncore; python_version>'3.11'
 xlwt
 openpyxl
 odfpy
-pandas
 tabulate
 google-cloud-pubsub
-#BAC0==21.12.03
-#BAC0==22.9.21
-BAC0==23.07.03
-cryptography
