@@ -219,7 +219,7 @@ def main():
     parser.add_argument("-n", "--networks", default="", help="comma separated target list of BACnet networks (optional)")
     parser.add_argument("-b", "--bacnetid", default="", help="restrict the scan to only one device with this BACnet ID (optional)")
     parser.add_argument("-r", "--range", default="",  help="restrict the scan to a device range in the format BACnet_ID_start,BACnet_ID_finish as in 1234,5678 (optional)")
-    parser.add_argument("-d", "--deviceonly", action="store_true", default=False, default=False, help="only execute a BACnet WHOIS device scan with no point enumeration (optional)")
+    parser.add_argument("-d", "--deviceonly", action="store_true", default=False, help="only execute a BACnet WHOIS device scan with no point enumeration (optional)")
     parser.add_argument("-g", "--globalscan", action="store_true", default=False, help="execute a global broadcast BACnet scan (optional)")
 
     args = parser.parse_args()
