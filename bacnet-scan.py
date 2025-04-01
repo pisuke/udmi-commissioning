@@ -47,21 +47,25 @@ def create_data(output_path, verbose, discovered_devices, network, devicesonly):
         name, vendor, address, device_id = each
 
         custom_obj_list = None
+        
+        sanitized_dev_name = sanitize_device_name(name)
 
-        devices[name] = BAC0.device(
+        devices[sanitized_dev_name] = BAC0.device(
             address, device_id, network, poll=0, object_list=custom_obj_list
         )
 
-        devices_info[name] = make_device_info(output_path, verbose, each, network)
+        devices_info[sanitized_dev_name] = make_device_info(output_path, verbose, each, network)
 
         if not devicesonly:
-            points[name] = make_points(output_path, verbose, devices[name], name)
+            points[sanitized_dev_name] = make_points(output_path, verbose, devices[sanitized_dev_name], sanitized_dev_name)
     return (devices, devices_info, points)
 
 def make_device_info(output_path, verbose, dev, network):
     lst = {}
     
     name, vendor, address, device_id = dev
+    
+    sanitized_dev_name = sanitize_device_name(name)
 
     device = BAC0.device(
             address, device_id, network, poll=0
@@ -133,6 +137,7 @@ def make_device_info(output_path, verbose, dev, network):
 
     lst = {
             "device_name": name,
+            "sanitized_device_name": sanitized_dev_name,
             "device_vendor": vendor_name,
             "device_model": model_name,
             "device_firmware": firmware_revision,
@@ -153,9 +158,11 @@ def make_device_info(output_path, verbose, dev, network):
 
 def make_points(output_path, verbose, dev, dev_name):
     lst = {}
+    sanitized_dev_name = sanitize_device_name(dev_name)
     for each in dev.points:
         lst[each.properties.name] = {
             "device_name": dev_name,
+            "sanitized_device_name": sanitized_dev_name,
             "value": each.lastValue,
             "units_or_states": each.properties.units_state,
             "description": each.properties.description,
@@ -167,7 +174,8 @@ def make_points(output_path, verbose, dev, dev_name):
         }
     df = pd.DataFrame.from_dict(lst, orient="index")
     df.index.name = "point_name"
-    df.to_csv(os.path.join(output_path, "%s.csv" % dev_name))
+    
+    df.to_csv(os.path.join(output_path, "%s.csv" % sanitized_dev_name))
     if verbose:
         print(tabulate(df, headers='keys', tablefmt='psql'))
     return df
@@ -181,7 +189,56 @@ def make_sheet(devices_df, dfs, sheet_filename):
             except:
                 pass
     print("Devices point lists written to file %s" % sheet_filename)
-    
+
+def sanitize_unix_command(input_string):
+    """
+    Sanitizes a string for use in a Unix command line by removing or replacing
+    characters that could cause issues.
+
+    Args:
+        input_string: The string to sanitize.
+
+    Returns:
+        A sanitized string suitable for use in a Unix command line.
+    """
+    # Characters to remove or replace for Unix command line safety
+    # These are often used for special purposes by the shell
+    offending_unix_chars = r"[;&|<>`'$(){}\[\]#\s:]"
+
+    # Replace offending characters with underscores (or you could remove them)
+    sanitized_string = re.sub(offending_unix_chars, "_", input_string)
+
+    return sanitized_string  
+
+def sanitize_spreadsheet_tabs(input_string):
+    """
+    Sanitizes a string for use in a spreadsheet by removing or replacing
+    tab characters that would create new columns.
+
+    Args:
+        input_string: The string to sanitize.
+
+    Returns:
+        A sanitized string suitable for use within a single spreadsheet cell.
+    """
+    # Replace tab characters (\t) with a space or another suitable character
+    sanitized_string = input_string.replace('\t', '_')
+    return sanitized_string  
+
+def sanitize_device_name(input_string):
+    """
+    Sanitizes a string for both Unix command line (including colons) and
+    spreadsheet tabs.
+
+    Args:
+        input_string: The string to sanitize.
+
+    Returns:
+        A string sanitized for both contexts.
+    """
+    sanitized_unix = sanitize_unix_command(input_string)
+    sanitized_both = sanitize_spreadsheet_tabs(sanitized_unix)
+    return sanitized_both
 
 def string_to_integer_list(comma_separated_string):
   """Converts a comma-separated string of numbers to a list of integers.
@@ -233,6 +290,7 @@ def main():
 
     BACNET_IP_ADDRESS = args.address
     SHEET_FILENAME = args.export
+    SHEET_FILENAME_NAME, SHEET_FILENAME_EXT = os.path.splitext(SHEET_FILENAME)
     BACNET_NETWORKS = args.networks
     BACNET_DEVICE_ID = args.bacnetid
     BACNET_RANGE = args.range
@@ -277,7 +335,7 @@ def main():
     devices_df = devices_df.transpose()
     devices_df.index.name = "number"
     print(tabulate(devices_df, headers='keys', tablefmt='psql'))
-    devices_df.to_csv(os.path.join(output_path, "%s.csv" % "bacnet_devices_list"))
+    devices_df.to_csv(os.path.join(output_path, "%s.csv" % SHEET_FILENAME_NAME))
 
     devices, devices_info, points = create_data(output_path, args.verbose, bacnet.devices, network=bacnet, devicesonly=DEVICE_ONLY_SCAN)
 
