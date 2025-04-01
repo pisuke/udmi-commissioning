@@ -254,16 +254,17 @@ def main():
     else:
         bacnet_networks = string_to_integer_list(BACNET_NETWORKS)
         if BACNET_DEVICE_ID == "":
-            discover = bacnet.discover(global_broadcast=BACNET_GLOBAL_SCAN, networks=bacnet_networks) 
+            if BACNET_RANGE != "":
+                BACNET_RANGE_START = BACNET_RANGE.split(",")[0]
+                BACNET_RANGE_FINISH = BACNET_RANGE.split(",")[1]
+                print("start:", BACNET_RANGE_START)
+                print("finish:", BACNET_RANGE_FINISH)
+                discover = bacnet.discover(global_broadcast=BACNET_GLOBAL_SCAN, limits=(BACNET_RANGE_START,BACNET_RANGE_FINISH), networks=bacnet_networks)
+            else:
+                discover = bacnet.discover(global_broadcast=BACNET_GLOBAL_SCAN, networks=bacnet_networks) 
         elif BACNET_DEVICE_ID != "":
             BACNET_DEVICE_ID = int(BACNET_DEVICE_ID)
             discover = bacnet.discover(global_broadcast=BACNET_GLOBAL_SCAN, limits=(BACNET_DEVICE_ID,BACNET_DEVICE_ID), networks=bacnet_networks)
-        elif BACNET_RANGE != "":
-            BACNET_RANGE_START = BACNET_RANGE.split(",")[0]
-            BACNET_RANGE_FINISH = BACNET_RANGE.split(",")[1]
-            print("start:", BACNET_RANGE_START)
-            print("finish:", BACNET_RANGE_FINISH)
-            discover = bacnet.discover(global_broadcast=BACNET_GLOBAL_SCAN, limits=(BACNET_RANGE_START,BACNET_RANGE_FINISH), networks=bacnet_networks)
 
     output_path = "bacnet_devices"
 
