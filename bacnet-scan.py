@@ -204,7 +204,7 @@ def sanitize_unix_command(input_string):
     """
     # Characters to remove or replace for Unix command line safety
     # These are often used for special purposes by the shell
-    offending_unix_chars = r"[;&|<>`'$(){}\[\]#\s:]"
+    offending_unix_chars = r"[;&|<>`'$(){}\[\]#\s:/]"
 
     # Replace offending characters with underscores (or you could remove them)
     sanitized_string = re.sub(offending_unix_chars, "_", input_string)
