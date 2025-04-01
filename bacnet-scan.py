@@ -238,6 +238,8 @@ def main():
     BACNET_RANGE = args.range
     BACNET_GLOBAL_SCAN = args.globalscan
     DEVICE_ONLY_SCAN = args.deviceonly
+    
+    print("Bacnet Global Scan:", BACNET_GLOBAL_SCAN)
 
     if BACNET_IP_ADDRESS != "":        
         bacnet = BAC0.lite(ip=BACNET_IP_ADDRESS)
