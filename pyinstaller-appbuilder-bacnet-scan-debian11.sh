@@ -4,7 +4,7 @@ ROOT_DIR=$(realpath $(dirname $0)/)
 
 TMP_DIR=$(mktemp -d)
 OUT_DIR=$ROOT_DIR/dist
-OUT_FILE=$OUT_DIR/bacnet-scan
+OUT_FILE=$OUT_DIR/bacnet-scan-debian11
 
 echo Building binary to 
 cat >$TMP_DIR/build.sh <<-EOF
@@ -12,7 +12,6 @@ cat >$TMP_DIR/build.sh <<-EOF
             rm -rf /tmp/bacnet-scan
             rm -rf /dist/bacnet-scan
             mkdir /build
-            #ls -la /usr/local/lib/python3.12/
             cp -r /src/bacnet-scan.py /build
             cp -r /src/bacnet-scan.spec /build
             cp -r /src/requirements.txt /build
@@ -26,12 +25,11 @@ cat >$TMP_DIR/build.sh <<-EOF
             python3 --version
             python3 -m pandas
             pyinstaller --onefile --hidden-import=pandas bacnet-scan.py
-            #pyinstaller bacnet-scan.spec
             ls -la dist/*
             mv dist/bacnet-scan /tmp/bacnet-scan
 EOF
 
-docker run --rm --volume $ROOT_DIR/:/src --volume $TMP_DIR:/tmp pyinstaller-builder:latest /bin/bash /tmp/build.sh
+docker run --rm --volume $ROOT_DIR/:/src --volume $TMP_DIR:/tmp pyinstaller-builder-debian-11:latest /bin/bash /tmp/build.sh
 mkdir -p $OUT_DIR
 mv $TMP_DIR/bacnet-scan $OUT_FILE
 chmod 777 $OUT_FILE
