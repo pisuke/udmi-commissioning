@@ -18,6 +18,9 @@ cat >$TMP_DIR/build.sh <<-EOF
             cd /build
             python3 -m pip install --upgrade pip
             python3 -m pip install -r requirements.txt
+            wget https://github.com/pisuke/BAC0/archive/refs/heads/unknown-units-2023.zip
+            unzip unknown-units-2023.zip
+            python3 -m pip install ./BAC0-unknown-units-2023/
             ls -la /usr/local/lib/python3.12/site-packages
             ls -la /usr/local/lib/python3.12/site-packages/packaging
             ls -la /usr/local/lib/python3.12/site-packages/pkg_resources

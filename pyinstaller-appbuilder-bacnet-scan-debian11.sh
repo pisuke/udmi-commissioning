@@ -13,12 +13,20 @@ cat >$TMP_DIR/build.sh <<-EOF
             rm -rf /dist/bacnet-scan
             mkdir /build
             cp -r /src/bacnet-scan.py /build
-            cp -r /src/bacnet-scan.spec /build
+            # cp -r /src/bacnet-scan.spec /build
             cp -r /src/requirements.txt /build
             cd /build
+            apt update
+            apt install -y git
+            ls -la /usr/bin/git
             python3 -m pip install --upgrade pip
             python3 -m pip install -r requirements.txt
+            wget https://github.com/pisuke/BAC0/archive/refs/heads/unknown-units-2023.zip
+            unzip unknown-units-2023.zip
+            python3 -m pip install ./BAC0-unknown-units-2023/
             ls -la /usr/local/lib/python3.12/site-packages
+            ls -la /usr/local/lib/python3.12/site-packages/BAC0
+            cat /usr/local/lib/python3.12/site-packages/BAC0/core/io/Read.py
             ls -la /usr/local/lib/python3.12/site-packages/packaging
             ls -la /usr/local/lib/python3.12/site-packages/pkg_resources
             ls -la /usr/local/lib/python3.12/lib-dynload

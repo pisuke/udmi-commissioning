@@ -4,7 +4,7 @@ ROOT_DIR=$(realpath $(dirname $0)/)
 
 TMP_DIR=$(mktemp -d)
 OUT_DIR=$ROOT_DIR/dist
-OUT_FILE=$OUT_DIR/bacnet-scan-ubuntu1604
+OUT_FILE=$OUT_DIR/bacnet-scan-rocky810
 
 echo Building binary to 
 cat >$TMP_DIR/build.sh <<-EOF
@@ -13,15 +13,20 @@ cat >$TMP_DIR/build.sh <<-EOF
             rm -rf /dist/bacnet-scan
             mkdir /build
             cp -r /src/bacnet-scan.py /build
-            cp -r /src/bacnet-scan.spec /build
+            # cp -r /src/bacnet-scan.spec /build
             cp -r /src/requirements.txt /build
             cd /build
+            # apt update
+            # apt install -y git
+            ls -la /usr/bin/git
             python3 -m pip install --upgrade pip
             python3 -m pip install -r requirements.txt
             wget https://github.com/pisuke/BAC0/archive/refs/heads/unknown-units-2023.zip
             unzip unknown-units-2023.zip
             python3 -m pip install ./BAC0-unknown-units-2023/
             ls -la /usr/local/lib/python3.12/site-packages
+            ls -la /usr/local/lib/python3.12/site-packages/BAC0
+            cat /usr/local/lib/python3.12/site-packages/BAC0/core/io/Read.py
             ls -la /usr/local/lib/python3.12/site-packages/packaging
             ls -la /usr/local/lib/python3.12/site-packages/pkg_resources
             ls -la /usr/local/lib/python3.12/lib-dynload
@@ -32,7 +37,7 @@ cat >$TMP_DIR/build.sh <<-EOF
             mv dist/bacnet-scan /tmp/bacnet-scan
 EOF
 
-docker run --rm --volume $ROOT_DIR/:/src --volume $TMP_DIR:/tmp pyinstaller-builder-ubuntu-1604:latest /bin/bash /tmp/build.sh
+docker run --rm --volume $ROOT_DIR/:/src --volume $TMP_DIR:/tmp pyinstaller-builder-rocky-810:latest /bin/bash /tmp/build.sh
 mkdir -p $OUT_DIR
 mv $TMP_DIR/bacnet-scan $OUT_FILE
 chmod 777 $OUT_FILE

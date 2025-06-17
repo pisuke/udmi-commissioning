@@ -207,7 +207,11 @@ def sanitize_unix_command(input_string):
     offending_unix_chars = r"[;&|<>`'$(){}\[\]#\s:/]"
 
     # Replace offending characters with underscores (or you could remove them)
-    sanitized_string = re.sub(offending_unix_chars, "_", input_string)
+    sanitized_string = ""
+    try:
+        sanitized_string = re.sub(offending_unix_chars, "_", input_string)
+    except:
+        pass
 
     return sanitized_string  
 
@@ -331,6 +335,7 @@ def main():
         os.makedirs(output_path)
         
     devices_df = pd.DataFrame()
+    # for device in bacnet.discoveredDevices:
     for device in bacnet.devices:
         devices_df = pd.concat( [devices_df, make_device_info(output_path, args.verbose, device, network=bacnet)], ignore_index=True, axis=1)
     devices_df = devices_df.transpose()

@@ -21,7 +21,10 @@
 # cryptography
 
 BAC0==23.7.3
+#git+https://github.com/ChristianTremblay/BAC0.git@84a7e789d11e7ef0b3d0a23ae22d737e62fc219b
+#git+https://github.com/pisuke/BAC0.git@unknown-units-2023
 bacpypes==0.18.7
+# bacpypes==0.19.0
 #bokeh
 cffi==1.16.0
 colorama==0.4.6

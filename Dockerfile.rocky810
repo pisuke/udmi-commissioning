@@ -1,0 +1,50 @@
+FROM rockylinux/rockylinux:8.10
+
+WORKDIR /tmp
+# Install build tools and dependencies using dnf
+RUN dnf update -y && \
+    dnf groupinstall -y "Development Tools" && \
+    dnf install -y zlib-devel ncurses-devel gdbm-devel nss-devel openssl-devel readline-devel libffi-devel sqlite-devel wget
+
+# Download OpenSSL (same version as before)
+RUN wget https://www.openssl.org/source/openssl-1.1.1g.tar.gz
+# Download Python (same version as before)
+RUN wget https://www.python.org/ftp/python/3.12.8/Python-3.12.8.tgz
+
+# Extract archives
+RUN tar -zxf openssl-1.1.1g.tar.gz
+RUN tar -xzvf Python-3.12.8.tgz
+
+# OpenSSL installation
+WORKDIR /tmp/openssl-1.1.1g
+RUN ./config --prefix=/usr/local/openssl shared
+RUN make
+RUN make install
+# Ensure OpenSSL libraries are accessible
+RUN echo "/usr/local/openssl/lib" > /etc/ld.so.conf.d/openssl.conf && ldconfig
+
+# Python installation
+WORKDIR /tmp/Python-3.12.8
+# Configure Python with OpenSSL from /usr/local/openssl
+RUN ./configure --enable-optimizations --with-openssl=/usr/local/openssl --with-ensurepip=install CFLAGS="-I/usr/local/openssl/include" LDFLAGS="-Wl,-rpath /usr/local/openssl/lib -L/usr/local/openssl/lib" --enable-shared --prefix=/usr/local
+RUN make
+RUN make install
+
+# Create a symbolic link for python3 (if not already present or to ensure it points to the new install)
+# This might already be handled by make install if /usr/local/bin is in PATH
+# RUN ln -s /usr/local/bin/python3.12 /usr/local/bin/python3
+
+RUN which python3
+RUN echo "/usr/local/lib" > /etc/ld.so.conf.d/libc.conf
+RUN cat /etc/ld.so.conf.d/libc.conf
+RUN ls -la /etc/ld.so.conf.d/
+RUN cat /etc/ld.so.conf
+RUN ls -la /usr/local/lib/
+RUN ldconfig
+RUN python3 --version
+
+
+# Install pyinstaller
+RUN python3 -m pip install pyinstaller
+
+WORKDIR /root
