@@ -117,7 +117,7 @@ TEMPLATE_BACNET_DATAPOINT = Template("""
     "objectInstanceNumber": ${point_remote_object_instance_number},
     "remoteDeviceInstanceNumber": ${point_remote_device_instance_number},
     "settable": false,
-    "useCovSubscription": true,
+    "useCovSubscription": false,
     "writePriority": 16
     },
     "eventDetectors": [],
@@ -160,11 +160,28 @@ TEMPLATE_BACNET_DATAPOINT = Template("""
     "xid": "${mango_point_xid}"
 }""")
 
+# TEMPLATE_MANGO_SYSTEM_SETTINGS = Template("""
+#     "systemSettings": {  
+#         "udmi.config": {
+#           "iotProvider": "GBOS", 
+#           "projectId": "${gcp_project_id}", 
+#           "cloudRegion": "${gcp_cloud_region}", 
+#           "registryId": "${registry_id}", 
+#           "site": "${site_id}"}
+#     },
+# """)
+
+TEMPLATE_MANGO_SYSTEM_SETTINGS = Template("""
+  "systemSettings": {
+    "udmi.config": "{\\"iotProvider\\": \\"GBOS\\", \\"projectId\\": \\"${gcp_project_id}\\", \\"cloudRegion\\": \\"${gcp_cloud_region}\\", \\"registryId\\": \\"${registry_id}\\", \\"site\\": \\"${site_id}\\"}"
+  },
+""")
+
 TEMPLATE_MANGO_UDMI_PUBLISHER = Template("""
 {
     "xid": "${mango_publisher_xid}",
     "name": "${mango_publisher_name}",
-    "enabled": true,
+    "enabled": false,
     "type": "UDMI",
     "snapshotSendPeriodType": "MINUTES",
     "publishType": "ALL",
@@ -323,14 +340,29 @@ def main():
     parser.add_argument(
         "-p", "--publisher", default="CGW-1", help="Name to use for the Mango UDMI publisher device (default is CGW-1)"
     )
+    parser.add_argument(
+        "-j", "--project", default="gcp-project-name", help="GCP project name for the UDMI publisher"
+    )
+    parser.add_argument(
+        "-g", "--region", default="us-central1", help="GCP region for the UDMI publisher"
+    )
+    parser.add_argument(
+        "-r", "--registry", default="ZZ-ABC-DEF", help="IoT Core registry ID for the UDMI publisher"
+    )
+    parser.add_argument(
+        "-s", "--site", default="ZZ-ABC-DEF", help="IoT Core site name for the UDMI publisher"
+    )
     
-    
-
     args = parser.parse_args()
     
     bacnet_localdevice_id = args.localdevice
     broadcast_address = args.broadcast 
     publisher_name = args.publisher
+    
+    gcp_project_id = args.project
+    gcp_cloud_region = args.region
+    registry_id = args.registry
+    site_id = args.site
 
     if args.verbose:
         print("program arguments:")
@@ -408,8 +440,18 @@ def main():
                 )
                 
                 # print(dir(public_key))
+                
+                output_mango_udmi_publisher_file.write('{\n')
+                
+                output_mango_udmi_publisher_file.write(TEMPLATE_MANGO_SYSTEM_SETTINGS.substitute(
+                    gcp_project_id=gcp_project_id,
+                    gcp_cloud_region=gcp_cloud_region,
+                    registry_id=registry_id,
+                    site_id=site_id
+                  )
+                )
               
-                output_mango_udmi_publisher_file.write('{\n  "publishers": [\n')
+                output_mango_udmi_publisher_file.write('\n  "publishers": [\n')
               
                 # point_data_type, 
                 # point_object_type, 
@@ -554,7 +596,7 @@ if __name__ == "__main__":
 """
 {
       "name": "zone_temperature",
-      "enabled": true,
+      "enabled": false,
       "loggingType": "INTERVAL",
       "intervalLoggingPeriodType": "MINUTES",
       "intervalLoggingType": "AVERAGE",
@@ -568,7 +610,7 @@ if __name__ == "__main__":
         "objectInstanceNumber": 1,
         "remoteDeviceInstanceNumber": 2803104,
         "settable": false,
-        "useCovSubscription": true,
+        "useCovSubscription": false,
         "writePriority": 16
       },
       "eventDetectors": [],
