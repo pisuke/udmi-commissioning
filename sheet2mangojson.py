@@ -196,7 +196,7 @@ TEMPLATE_MANGO_PUBLISHED_POINT = Template('''
 def show_title():
     """Show the program title"""
 
-    title = """
+    title = r"""
      _               _   ____  
  ___| |__   ___  ___| |_|___ \ 
 / __| '_ \ / _ \/ _ \ __| __) |
@@ -320,6 +320,9 @@ def main():
     parser.add_argument(
         "-b", "--broadcast", default="255.255.255.255", help="Broadcast address for the BACnet Local Device to use in Mango"
     )
+    parser.add_argument(
+        "-p", "--publisher", default="CGW-1", help="Name to use for the Mango UDMI publisher device (default is CGW-1)"
+    )
     
     
 
@@ -327,6 +330,7 @@ def main():
     
     bacnet_localdevice_id = args.localdevice
     broadcast_address = args.broadcast 
+    publisher_name = args.publisher
 
     if args.verbose:
         print("program arguments:")
@@ -417,14 +421,18 @@ def main():
                 
                 for index, device in devices_data.iterrows():
                     
-                    points_data = get_sheet_data(args.input, device['device_name'])
+                    points_data = get_sheet_data(args.input, device['sanitized_device_name'])
                     
-                    for index, point in points_data.iterrows():
-                      cloud_device_id = point['cloud_device_id']  
-                      cloud_point_name = point['cloud_point_name']
-                      if cloud_device_id and cloud_point_name and not isNaN(cloud_device_id) and not isNaN(cloud_point_name):
-                          proxy_devices = add_to_list_if_not_exists(proxy_devices, cloud_device_id)
-                          points_to_be_exported += 1
+                    print(points_data)
+                    
+                    if points_data is not None:
+                    
+                      for index, point in points_data.iterrows():
+                        cloud_device_id = point['cloud_device_id']  
+                        cloud_point_name = point['cloud_point_name']
+                        if cloud_device_id and cloud_point_name and not isNaN(cloud_device_id) and not isNaN(cloud_point_name):
+                            proxy_devices = add_to_list_if_not_exists(proxy_devices, cloud_device_id)
+                            points_to_be_exported += 1
                           
                 print("Proxy devices: ",proxy_devices)
                           
@@ -441,8 +449,8 @@ def main():
                 mango_proxydevices_array_string += "]"
                                        
                 proxy_devices_to_be_exported = len(proxy_devices)
-                mango_publisher_xid = "PUB_UDMI_CGW-1"
-                mango_publisher_name = "CGW-1"
+                mango_publisher_xid = "PUB_UDMI_%s" % publisher_name
+                mango_publisher_name = publisher_name
                           
                 output_mango_udmi_publisher_file.write(TEMPLATE_MANGO_UDMI_PUBLISHER.substitute(
                   mango_publisher_xid=mango_publisher_xid,
@@ -458,69 +466,72 @@ def main():
                 
                 for index, device in devices_data.iterrows():
                     # pi = 0
-                    if device['device_name'] != "BAC0":
-                        print("\n",device['device_name'], device['device_vendor'], device['device_model'],device['device_id'])
-                        points_data = get_sheet_data(args.input, device['device_name'])
+                    if device['sanitized_device_name'] != "BAC0":
+                        print("\n",device['sanitized_device_name'], device['device_vendor'], device['device_model'],device['device_id'])
+                        points_data = get_sheet_data(args.input, device['sanitized_device_name'])
                         # di += 1
                         # print(i,len(devices_data))
-                        for index, point in points_data.iterrows():
-                            
-                            # print(i,len(points_data))
-                          
-                            cloud_device_id = point['cloud_device_id']
-                            # proxy_devices = add_to_list_if_not_exists(proxy_devices, cloud_device_id)
-                            cloud_point_name = point['cloud_point_name']
-                            
-                            if cloud_device_id and cloud_point_name and not isNaN(cloud_device_id) and not isNaN(cloud_point_name):
+                        
+                        if points_data is not None:
+                        
+                          for index, point in points_data.iterrows():
                               
-                                i += 1
-
-                                point_data_type = "NUMERIC"
-                                
-                                mango_point_name = cloud_point_name
-                                mango_device_id = cloud_device_id
-                                
-                                point_remote_object_instance_number = point['object'].split(":")[1]
-                                point_remote_device_instance_number = device['device_id']
-                                point_object_type = OBJECT_TYPE[point['object'].split(":")[0]]
-
-                                bacnet_point_property_name = point_object_type
-                                if isNaN(point['description']):
-                                  bacnet_point_description = ""
-                                else:
-                                  bacnet_point_description = point['description']
-                                # DP_2802621_ANALOG_VALUE_20
-                                mango_point_xid = f"DP_{device['device_id']}_{point_object_type}_{point_remote_object_instance_number}"
-                                bacnet_point_name = point['point_name']
-                                bacnet_device_name = point['device_name']
-                                print(mango_device_id, bacnet_device_name, cloud_point_name, bacnet_point_name, mango_point_xid)
-                                output_mango_bacnet_config_file.write(TEMPLATE_BACNET_DATAPOINT.substitute(
-                                                      mango_point_name=mango_point_name, 
-                                                      point_data_type=point_data_type,
-                                                      mango_device_name = mango_device_id,
-                                                      bacnet_point_name=bacnet_point_name,
-                                                      point_object_type=point_object_type,
-                                                      point_remote_object_instance_number=point_remote_object_instance_number,
-                                                      point_remote_device_instance_number=point_remote_device_instance_number,
-                                                      bacnet_device_name=bacnet_device_name,
-                                                      bacnet_point_property_name=bacnet_point_property_name,
-                                                      bacnet_point_description=bacnet_point_description,
-                                                      mango_point_xid=mango_point_xid
-                                                      )
-                                          )
+                              # print(i,len(points_data))
+                            
+                              cloud_device_id = point['cloud_device_id']
+                              # proxy_devices = add_to_list_if_not_exists(proxy_devices, cloud_device_id)
+                              cloud_point_name = point['cloud_point_name']
                               
-                                mango_publisher_xid = "PUB_UDMI_CGW-1"
-                                output_mango_udmi_publisher_file.write(TEMPLATE_MANGO_PUBLISHED_POINT.substitute(
-                                        point_name=mango_point_name,
-                                        point_xid=mango_point_xid,
-                                        device_name=mango_device_id,
-                                        mango_publisher_xid=mango_publisher_xid
-                                ))
+                              if cloud_device_id and cloud_point_name and not isNaN(cloud_device_id) and not isNaN(cloud_point_name):
                                 
-                                # if it is not the last point, add a comma for each point
-                                if i < points_to_be_exported:
-                                  output_mango_bacnet_config_file.write(',\n')
-                                  output_mango_udmi_publisher_file.write(',\n')
+                                  i += 1
+
+                                  point_data_type = "NUMERIC"
+                                  
+                                  mango_point_name = cloud_point_name
+                                  mango_device_id = cloud_device_id
+                                  
+                                  point_remote_object_instance_number = point['object'].split(":")[1]
+                                  point_remote_device_instance_number = device['device_id']
+                                  point_object_type = OBJECT_TYPE[point['object'].split(":")[0]]
+
+                                  bacnet_point_property_name = point_object_type
+                                  if isNaN(point['description']):
+                                    bacnet_point_description = ""
+                                  else:
+                                    bacnet_point_description = point['description']
+                                  # DP_2802621_ANALOG_VALUE_20
+                                  mango_point_xid = f"DP_{device['device_id']}_{point_object_type}_{point_remote_object_instance_number}"
+                                  bacnet_point_name = point['point_name']
+                                  bacnet_device_name = point['device_name']
+                                  print(mango_device_id, bacnet_device_name, cloud_point_name, bacnet_point_name, mango_point_xid)
+                                  output_mango_bacnet_config_file.write(TEMPLATE_BACNET_DATAPOINT.substitute(
+                                                        mango_point_name=mango_point_name, 
+                                                        point_data_type=point_data_type,
+                                                        mango_device_name = mango_device_id,
+                                                        bacnet_point_name=bacnet_point_name,
+                                                        point_object_type=point_object_type,
+                                                        point_remote_object_instance_number=point_remote_object_instance_number,
+                                                        point_remote_device_instance_number=point_remote_device_instance_number,
+                                                        bacnet_device_name=bacnet_device_name,
+                                                        bacnet_point_property_name=bacnet_point_property_name,
+                                                        bacnet_point_description=bacnet_point_description,
+                                                        mango_point_xid=mango_point_xid
+                                                        )
+                                            )
+                                
+                                  mango_publisher_xid = "PUB_UDMI_CGW-1"
+                                  output_mango_udmi_publisher_file.write(TEMPLATE_MANGO_PUBLISHED_POINT.substitute(
+                                          point_name=mango_point_name,
+                                          point_xid=mango_point_xid,
+                                          device_name=mango_device_id,
+                                          mango_publisher_xid=mango_publisher_xid
+                                  ))
+                                  
+                                  # if it is not the last point, add a comma for each point
+                                  if i < points_to_be_exported:
+                                    output_mango_bacnet_config_file.write(',\n')
+                                    output_mango_udmi_publisher_file.write(',\n')
                         
                 output_mango_bacnet_config_file.write("]\n}")
                 output_mango_udmi_publisher_file.write("]\n}")

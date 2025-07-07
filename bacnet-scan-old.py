@@ -25,17 +25,12 @@ import BAC0
 from tabulate import tabulate
 import os
 import re
-import sys
-# import ipaddress
-import logging
-import time
-from pprint import pprint
 
 def show_title():
     """Show the program title
     """
 
-    title = r""" 
+    title = """
      ____    _    ____            _                           
     | __ )  / \  / ___|_ __   ___| |_      ___  ___ __ _ _ __  
     |  _ \ / _ \| |   | '_ \ / _ \ __|____/ __|/ __/ _` | '_ \ 
@@ -65,59 +60,6 @@ def create_data(output_path, verbose, discovered_devices, network, devicesonly):
         if not devicesonly:
             points[sanitized_dev_name] = make_points(output_path, verbose, devices[sanitized_dev_name], sanitized_dev_name)
     return (devices, devices_info, points)
-
-def make_device_info_simple(output_path, verbose, dev, network):
-    lst = {}
-    
-    address, device_id = dev
-
-    device = BAC0.device(
-            address, device_id, network, poll=0
-        )
-    
-    try:
-        ipaddress.ip_address(address)
-    except ValueError:
-        pass
-    
-    
-    try:
-        object_name, vendor_name, firmware_version, model_name, serial_number, description, location, application_software_version = (
-            network.readMultiple(
-                f"{address} device {device_id} objectName vendorName"
-                " firmwareRevision modelName serialNumber description location applicationSoftwareVersion"
-            )
-        )
-
-        logging.info("object_name: %s vendor_name: %s firmware: %s model: %s serial: %s description: %s location: %s",  
-                      object_name, vendor_name, firmware_version, model_name, serial_number, description, location, application_software_version)
-
-    except (BAC0.core.io.IOExceptions.SegmentationNotSupported, Exception) as err:
-        logging.exception(f"error reading from {address}/{device_id}")        
-    
-    sanitized_dev_name = sanitize_device_name(object_name)
-    
-    lst = {
-            "device_name": object_name,
-            "sanitized_device_name": sanitized_dev_name,
-            "device_vendor": vendor_name,
-            "device_model": model_name,
-            "device_firmware": firmware_version,
-            "description": description,
-            "location": location,
-            "device_application_version": application_software_version,
-            "device_serial_number": serial_number,
-            "ip_address": address,
-            "device_id": device_id
-            # "network": network_number
-        }
-    df = pd.DataFrame.from_dict(lst, orient="index")
-    df.index.name = "property"
-    df.rename(columns={0: "value"}, inplace=True)
-    
-    if verbose:
-        print(tabulate(df, headers='keys', tablefmt='psql'))
-    return df
 
 def make_device_info(output_path, verbose, dev, network):
     lst = {}
@@ -360,9 +302,6 @@ def main():
     BACNET_GLOBAL_SCAN = args.globalscan
     DEVICE_ONLY_SCAN = args.deviceonly
     
-    BACNET_RANGE_START = 0
-    BACNET_RANGE_FINISH = 4194302
-    
     print("Bacnet Global Scan:", BACNET_GLOBAL_SCAN)
 
     if BACNET_IP_ADDRESS != "":        
@@ -372,14 +311,7 @@ def main():
     
     if BACNET_NETWORKS == "":
         if BACNET_DEVICE_ID == "":
-            if BACNET_RANGE != "":
-                BACNET_RANGE_START = BACNET_RANGE.split(",")[0]
-                BACNET_RANGE_FINISH = BACNET_RANGE.split(",")[1]
-                print("start:", BACNET_RANGE_START)
-                print("finish:", BACNET_RANGE_FINISH)
-                discover = bacnet.discover(global_broadcast=BACNET_GLOBAL_SCAN, limits=(BACNET_RANGE_START,BACNET_RANGE_FINISH))
-            else:
-                discover = bacnet.discover(global_broadcast=BACNET_GLOBAL_SCAN) 
+            discover = bacnet.discover(global_broadcast=BACNET_GLOBAL_SCAN) 
         else:
             discover = bacnet.discover(global_broadcast=BACNET_GLOBAL_SCAN, limits=(BACNET_DEVICE_ID,BACNET_DEVICE_ID))
     else:
@@ -402,76 +334,18 @@ def main():
     if not os.path.exists(output_path):
         os.makedirs(output_path)
         
-    #devices_df = pd.DataFrame()
-    
-    if DEVICE_ONLY_SCAN:
-        discovered_devices = (
-                  set(bacnet.discoveredDevices.keys())
-              )
-              
-        pprint(bacnet.devices)
+    devices_df = pd.DataFrame()
+    # for device in bacnet.discoveredDevices:
+    for device in bacnet.devices:
+        devices_df = pd.concat( [devices_df, make_device_info(output_path, args.verbose, device, network=bacnet)], ignore_index=True, axis=1)
+    devices_df = devices_df.transpose()
+    devices_df.index.name = "number"
+    print(tabulate(devices_df, headers='keys', tablefmt='psql'))
+    devices_df.to_csv(os.path.join(output_path, "%s.csv" % SHEET_FILENAME_NAME))
 
-        bacnet_devices_df = pd.DataFrame(bacnet.devices, columns=['device_name', 'manufacturer', 'address', 'device_id'])
-        bacnet_devices_df.index.name = "number"
-        bacnet_devices_df.to_csv(os.path.join(output_path, "%s_devicelist.csv" % SHEET_FILENAME_NAME))
-    
-        #pprint(bacnet_devices_df)
-    
-    #devices = []
-    #for d_name, d_manufacturer, d_address, d_device_id in bacnet.devices:
-    #    print('Connecting device',d_manufacturer,d_address,d_device_id)
-    #    custom_obj_list = None 
-    #    d = BAC0.device(
-    #        d_address, d_device_id, bacnet, poll=0, object_list=custom_obj_list
-    #    )
-    #    #d = BAC0.device(address=d_address,device_id=d_device_id,network=bacnet)
-    #    devices.append(d)
-    #pprint(devices)
-    
-    #for device in discovered_devices:
-    #   address = device[0]
-    #    device_id = device[1]
-    #    object_name = ""
-    #    object_list = []
-    #    try:
-    #       object_name, object_list = (
-    #           bacnet.readMultiple(
-    #               f"{address} device {device_id} objectName objectList "
-    #            )
-    #       )
-    #    except:
-    #       pass
-    #    print(object_name, object_list)
-    
-    if not DEVICE_ONLY_SCAN:
-        
-        #for device in discovered_devices:
-        #    # print(dir(device))
-        #    address = device[0]
-        #    device_id = device[1]
-        #    print(address, device_id)
-        #    devices_df = pd.concat( [devices_df, make_device_info_simple(output_path, args.verbose, device, network=bacnet)], ignore_index=True, axis=1)
-        
-        #pprint(devices_df)
-    
-        #devices_df = devices_df.transpose()
-        #devices_df.index.name = "number"
-        #print(tabulate(devices_df, headers='keys', tablefmt='psql'))
-        #devices_df.to_csv(os.path.join(output_path, "%s.csv" % SHEET_FILENAME_NAME))
+    devices, devices_info, points = create_data(output_path, args.verbose, bacnet.devices, network=bacnet, devicesonly=DEVICE_ONLY_SCAN)
 
-        devices, devices_info, points = create_data(output_path, args.verbose, bacnet.devices, network=bacnet, devicesonly=DEVICE_ONLY_SCAN)
-        
-        #print(tabulate(devices_info, headers='keys', tablefmt='psql'))
-        devices_df = pd.DataFrame()
-        #for index, row in devices_info.iterrows():
-        for key, value in devices_info.items():
-            devices_df = pd.concat( [devices_df, value], ignore_index=True, axis=1)
-        #devices_df = pd.DataFrame.from_dict(devices_info, orient='index')
-        devices_df = devices_df.transpose()
-        devices_df.index.name = "number"
-        print(tabulate(devices_df, headers='keys', tablefmt='psql'))
-
-        make_sheet(devices_df, points, os.path.join(output_path, SHEET_FILENAME))
+    make_sheet(devices_df, points, os.path.join(output_path, SHEET_FILENAME))
 
 if __name__ == "__main__":
     main()
