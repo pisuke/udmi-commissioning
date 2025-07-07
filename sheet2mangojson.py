@@ -384,21 +384,27 @@ def main():
             
             with open(output_mango_udmi_publisher_filename, 'w') as output_mango_udmi_publisher_file:
               
+                # the UDMI keygen commands are:
+                # openssl genrsa -out rsa_private.pem 2048
+                # openssl rsa -in rsa_private.pem -pubout -out rsa_public.pem
+              
                 key = rsa.generate_private_key(
-                    backend=crypto_default_backend(),
+                    # backend=crypto_default_backend(),
                     public_exponent=65537,
                     key_size=2048
                 )
                 
                 private_key = key.private_bytes(
-                    crypto_serialization.Encoding.PEM,
-                    crypto_serialization.PrivateFormat.TraditionalOpenSSL,
-                    crypto_serialization.NoEncryption()
+                    encoding=crypto_serialization.Encoding.PEM,
+                    # format=crypto_serialization.PrivateFormat.TraditionalOpenSSL,
+                    format=crypto_serialization.PrivateFormat.PKCS8,
+                    encryption_algorithm=crypto_serialization.NoEncryption()
                 )
 
                 public_key = key.public_key().public_bytes(
-                    crypto_serialization.Encoding.PEM,
-                    crypto_serialization.PublicFormat.PKCS1
+                    encoding=crypto_serialization.Encoding.PEM,
+                    # format=crypto_serialization.PublicFormat.PKCS1
+                    format=crypto_serialization.PublicFormat.SubjectPublicKeyInfo
                 )
                 
                 # print(dir(public_key))
