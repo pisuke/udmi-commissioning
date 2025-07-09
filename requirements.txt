@@ -59,3 +59,4 @@ openpyxl
 odfpy
 tabulate
 google-cloud-pubsub
+pyfiglet
