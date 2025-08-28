@@ -14,7 +14,7 @@ __author__ = "Francesco Anselmo"
 __copyright__ = "Copyright 2025"
 __credits__ = ["Francesco Anselmo"]
 __license__ = "MIT"
-__version__ = "0.1"
+__version__ = "0.2"
 __maintainer__ = "Francesco Anselmo"
 __email__ = "francesco.anselmo@gmail.com"
 __status__ = "Dev"
@@ -68,11 +68,10 @@ TEMPLATE_BACNET_LOCALDEVICE = Template('''
    }
 ]''')
 
-TEMPLATE_BACNET_DATASOURCE = """
-  "dataSources": [
+TEMPLATE_BACNET_DATASOURCE = Template("""
     {
-      "xid": "DS_BACNET",
-      "name": "BACNET",
+      "xid": "${data_source_xid}",
+      "name": "${data_source_name}",
       "enabled": false,
       "type": "BACnetIP",
       "alarmLevels": {
@@ -97,8 +96,7 @@ TEMPLATE_BACNET_DATASOURCE = """
       "purgeOverride": false,
       "purgePeriod": 1,
       "readPermission": []
-    }
-  ]"""
+    }""")
 
 TEMPLATE_BACNET_DATAPOINT = Template("""
 {
@@ -127,7 +125,7 @@ TEMPLATE_BACNET_DATAPOINT = Template("""
     "simplifyType": "NONE",
     "chartColour": "",
     "data": null,
-    "dataSourceXid": "DS_BACNET",
+    "dataSourceXid": "${data_source_xid}",
     "defaultCacheSize": 1,
     "deviceName": "${mango_device_name}",
     "discardExtremeValues": false,
@@ -159,17 +157,6 @@ TEMPLATE_BACNET_DATAPOINT = Template("""
     "tolerance": 0,
     "xid": "${mango_point_xid}"
 }""")
-
-# TEMPLATE_MANGO_SYSTEM_SETTINGS = Template("""
-#     "systemSettings": {  
-#         "udmi.config": {
-#           "iotProvider": "GBOS", 
-#           "projectId": "${gcp_project_id}", 
-#           "cloudRegion": "${gcp_cloud_region}", 
-#           "registryId": "${registry_id}", 
-#           "site": "${site_id}"}
-#     },
-# """)
 
 TEMPLATE_MANGO_SYSTEM_SETTINGS = Template("""
   "systemSettings": {
@@ -223,7 +210,7 @@ def show_title():
  _ __ ___   __ _ _ __   __ _  ___ (_)___  ___  _ __  
 | '_ ` _ \ / _` | '_ \ / _` |/ _ \| / __|/ _ \| '_ \ 
 | | | | | | (_| | | | | (_| | (_) | \__ \ (_) | | | |
-|_| |_| |_|\__,_|_| |_|\__, |\___// |___/\___/|_| |_|
+|_| |_|_|_|\__,_|_| |_|\__, |\___// |___/\___/|_| |_|
                        |___/    |__/                 
 
     """
@@ -323,6 +310,13 @@ def main():
         help="increase the verbosity level",
     )
     parser.add_argument(
+        "-u",
+        "--unique",
+        action="store_true",
+        default=False,
+        help="create unique BACNET data sources per sanitized_device_name",
+    )
+    parser.add_argument(
         "-i",
         "--input",
         default="",
@@ -391,15 +385,36 @@ def main():
         output_mango_udmi_publisher_filename = f"{args.output}_udmi_publisher.json"
         
         with open(output_mango_bacnet_config_filename, 'w') as output_mango_bacnet_config_file:
-            # broadcast_address = get_broadcast_address()
-            # if broadcast_address:
-            #     print(f"Broadcast Address: {broadcast_address}")
             output_mango_bacnet_config_file.write("{\n")
             output_mango_bacnet_config_file.write(TEMPLATE_BACNET_LOCALDEVICE.substitute(broadcast_address=broadcast_address, bacnet_localdevice_id=bacnet_localdevice_id))
             output_mango_bacnet_config_file.write(",\n")
-            output_mango_bacnet_config_file.write(TEMPLATE_BACNET_DATASOURCE)
-            output_mango_bacnet_config_file.write(',\n"dataPoints": [\n')
             
+            # --- Start of unique data source logic ---
+            if args.unique:
+                # Get unique sanitized device names to create separate data sources
+                sanitized_device_names = [device['sanitized_device_name'] for index, device in devices_data.iterrows() if device['sanitized_device_name'] != "BAC0"]
+                unique_device_names = sorted(list(set(sanitized_device_names)))
+                
+                output_mango_bacnet_config_file.write('"dataSources": [\n')
+                for i, device_name in enumerate(unique_device_names):
+                    data_source_xid = f"DS_BACNET_{device_name}"
+                    data_source_name = f"BACNET_{device_name}"
+                    output_mango_bacnet_config_file.write(TEMPLATE_BACNET_DATASOURCE.substitute(data_source_xid=data_source_xid, data_source_name=data_source_name))
+                    if i < len(unique_device_names) - 1:
+                        output_mango_bacnet_config_file.write(",\n")
+                output_mango_bacnet_config_file.write("\n],")
+
+            else:
+                # Default behavior: single data source
+                data_source_xid = "DS_BACNET"
+                data_source_name = "BACNET"
+                output_mango_bacnet_config_file.write('"dataSources": [\n')
+                output_mango_bacnet_config_file.write(TEMPLATE_BACNET_DATASOURCE.substitute(data_source_xid=data_source_xid, data_source_name=data_source_name))
+                output_mango_bacnet_config_file.write('\n],')
+            
+            output_mango_bacnet_config_file.write('\n"dataPoints": [\n')
+            # --- End of unique data source logic ---
+
             OBJECT_TYPE = {
               'analogInput': 'ANALOG_INPUT',
               'analogOutput': 'ANALOG_OUTPUT',
@@ -416,30 +431,21 @@ def main():
             
             with open(output_mango_udmi_publisher_filename, 'w') as output_mango_udmi_publisher_file:
               
-                # the UDMI keygen commands are:
-                # openssl genrsa -out rsa_private.pem 2048
-                # openssl rsa -in rsa_private.pem -pubout -out rsa_public.pem
-              
                 key = rsa.generate_private_key(
-                    # backend=crypto_default_backend(),
                     public_exponent=65537,
                     key_size=2048
                 )
                 
                 private_key = key.private_bytes(
                     encoding=crypto_serialization.Encoding.PEM,
-                    # format=crypto_serialization.PrivateFormat.TraditionalOpenSSL,
                     format=crypto_serialization.PrivateFormat.PKCS8,
                     encryption_algorithm=crypto_serialization.NoEncryption()
                 )
 
                 public_key = key.public_key().public_bytes(
                     encoding=crypto_serialization.Encoding.PEM,
-                    # format=crypto_serialization.PublicFormat.PKCS1
                     format=crypto_serialization.PublicFormat.SubjectPublicKeyInfo
                 )
-                
-                # print(dir(public_key))
                 
                 output_mango_udmi_publisher_file.write('{\n')
                 
@@ -453,28 +459,11 @@ def main():
               
                 output_mango_udmi_publisher_file.write('\n  "publishers": [\n')
               
-                # point_data_type, 
-                # point_object_type, 
-                # point_remote_object_instance_number
-                # point_remote_device_instance_number, 
-                # bacnet_device_name, 
-                # bacnet_point_name, 
-                # bacnet_point_property_name, 
-                # bacnet_point_description, 
-                # mango_point_xid
-                
-                # get total number of points to be exported and build the proxy devices list
                 points_to_be_exported = 0
-                mango_proxydevices_array_string = "["
                 
                 for index, device in devices_data.iterrows():
-                    
                     points_data = get_sheet_data(args.input, device['sanitized_device_name'])
-                    
-                    print(points_data)
-                    
                     if points_data is not None:
-                    
                       for index, point in points_data.iterrows():
                         cloud_device_id = point['cloud_device_id']  
                         cloud_point_name = point['cloud_point_name']
@@ -484,11 +473,10 @@ def main():
                           
                 print("Proxy devices: ",proxy_devices)
                           
-                # build the proxy devices list string
+                mango_proxydevices_array_string = "["
                 pd = 0
                 for proxy_device in proxy_devices:
                   pd += 1
-                  
                   if pd < len(proxy_devices):
                     mango_proxydevices_array_string += '{"name": "%s"},' % proxy_device
                   else:
@@ -496,7 +484,6 @@ def main():
                     
                 mango_proxydevices_array_string += "]"
                                        
-                proxy_devices_to_be_exported = len(proxy_devices)
                 mango_publisher_xid = "PUB_UDMI_%s" % publisher_name
                 mango_publisher_name = publisher_name
                           
@@ -513,21 +500,19 @@ def main():
                 i = 0
                 
                 for index, device in devices_data.iterrows():
-                    # pi = 0
                     if device['sanitized_device_name'] != "BAC0":
                         print("\n",device['sanitized_device_name'], device['device_vendor'], device['device_model'],device['device_id'])
                         points_data = get_sheet_data(args.input, device['sanitized_device_name'])
-                        # di += 1
-                        # print(i,len(devices_data))
                         
                         if points_data is not None:
+                          # Determine the data source XID based on the --unique flag
+                          if args.unique:
+                              current_data_source_xid = f"DS_BACNET_{device['sanitized_device_name']}"
+                          else:
+                              current_data_source_xid = "DS_BACNET"
                         
                           for index, point in points_data.iterrows():
-                              
-                              # print(i,len(points_data))
-                            
                               cloud_device_id = point['cloud_device_id']
-                              # proxy_devices = add_to_list_if_not_exists(proxy_devices, cloud_device_id)
                               cloud_point_name = point['cloud_point_name']
                               
                               if cloud_device_id and cloud_point_name and not isNaN(cloud_device_id) and not isNaN(cloud_point_name):
@@ -548,7 +533,7 @@ def main():
                                     bacnet_point_description = ""
                                   else:
                                     bacnet_point_description = point['description']
-                                  # DP_2802621_ANALOG_VALUE_20
+                                  
                                   mango_point_xid = f"DP_{device['device_id']}_{point_object_type}_{point_remote_object_instance_number}"
                                   bacnet_point_name = point['point_name']
                                   bacnet_device_name = point['device_name']
@@ -564,7 +549,8 @@ def main():
                                                         bacnet_device_name=bacnet_device_name,
                                                         bacnet_point_property_name=bacnet_point_property_name,
                                                         bacnet_point_description=bacnet_point_description,
-                                                        mango_point_xid=mango_point_xid
+                                                        mango_point_xid=mango_point_xid,
+                                                        data_source_xid=current_data_source_xid
                                                         )
                                             )
                                 
@@ -576,7 +562,6 @@ def main():
                                           mango_publisher_xid=mango_publisher_xid
                                   ))
                                   
-                                  # if it is not the last point, add a comma for each point
                                   if i < points_to_be_exported:
                                     output_mango_bacnet_config_file.write(',\n')
                                     output_mango_udmi_publisher_file.write(',\n')
@@ -592,100 +577,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-"""
-{
-      "name": "zone_temperature",
-      "enabled": false,
-      "loggingType": "INTERVAL",
-      "intervalLoggingPeriodType": "MINUTES",
-      "intervalLoggingType": "AVERAGE",
-      "purgeType": "YEARS",
-      "pointLocator": {
-        "dataType": "NUMERIC",
-        "objectType": "ANALOG_INPUT",
-        "propertyIdentifier": "present-value",
-        "additive": 0,
-        "multiplier": 1,
-        "objectInstanceNumber": 1,
-        "remoteDeviceInstanceNumber": 2803104,
-        "settable": false,
-        "useCovSubscription": false,
-        "writePriority": 16
-      },
-      "eventDetectors": [],
-      "plotType": "SPLINE",
-      "rollup": "NONE",
-      "unit": "",
-      "simplifyType": "NONE",
-      "chartColour": "",
-      "data": null,
-      "dataSourceXid": "DS_BACNET",
-      "defaultCacheSize": 1,
-      "deviceName": "HTR-1",
-      "discardExtremeValues": false,
-      "discardHighLimit": 1.7976931348623157e+308,
-      "discardLowLimit": -1.7976931348623157e+308,
-      "editPermission": [],
-      "intervalLoggingPeriod": 1,
-      "intervalLoggingSampleWindowSize": 0,
-      "overrideIntervalLoggingSamples": false,
-      "preventSetExtremeValues": false,
-      "purgeOverride": false,
-      "purgePeriod": 1,
-      "readPermission": [],
-      "setExtremeHighLimit": 1.7976931348623157e+308,
-      "setExtremeLowLimit": -1.7976931348623157e+308,
-      "setPermission": [],
-      "tags": {
-        "BACnetDeviceName": "HTR-1",
-        "BACnetObjectName": "zone_temp_1",
-        "BACnetPropertyName": "ANALOG_INPUT",
-        "BACnetObjectDescription": "Zone Temperature"
-      },
-      "textRenderer": {
-        "type": "ANALOG",
-        "useUnitAsSuffix": false,
-        "suffix": "",
-        "format": "0.00"
-      },
-      "tolerance": 0,
-      "xid": "DP_2803104_ANALOG_INPUT_1"
-    },
-"""
-
-
-"""
-analogInput:1
-analogOutput:1
-analogValue:1
-binaryInput:3
-binaryOutput:4
-binaryValue:1
-multiStateInput:9697
-multiStateOutput:9697
-multiStateValue:1
-loop:1
-
-"""
-
-"""
-Datapoint Type / BACnet Object Type	  Object Type ID	  Brief Description
-BACnet_AI	                            0	                Analog input. Defines a standard object whose properties represent the externally visible characteristics of an analog input.
-BACnet_AO	                            1	Analog output. Defines a standard object whose properties represent the externally visible characteristics of an analog output.
-BACnet_AV	                            2	Analog value. Defines a standard object whose properties represent the externally visible characteristics of an analog value.
-BACnet_BI	                            3	Binary input. Defines a standard object whose properties represent the externally visible characteristics of a binary input.
-BACnet_BO	                            4	Binary output. Defines a standard object whose properties represent the externally visible characteristics of a binary output.
-BACnet_BV	5	Binary value. Defines a standard object whose properties represent the externally visible characteristics of a binary value.
-BACnet_MSI	13	Multi-state input. Defines a standard object whose Present_Value (present value) can take integer values.
-BACnet_MSO	14	Multi-state output. Defines a standard object whose output is an integer value.
-BACnet_MSV	19	Multi-state value. Defines a standard object whose properties represent the externally visible characteristics of a multistage value.
-BACnet_Accumulator	23	Addition of impulse data of measurement devices over the time. Used for balancing, statement and energy performance management (for interval mass counter see Pulse Converter).
-BACnet_Calendar	6	Calendar. Defines a standard object that is used to define a list of calendar entries (date list).
-BACnet_Schedule	17	Time plan. Defines a standard object that is used to define a periodic timeplan, also with optional exceptions on arbitrary days or on arbitrary dates, which can recur within a certain period of time.
-BACnet_NOC	15	Alarm class. Defines a standard object that contains the necessary information for the distribution of event alarms with BACnet systems.
-BACnet_Program	16	Object for program controlling in a BACnet device (e.g. load and start).
-BACnet_PulseConverter	24	Object for impulse conversion for mass counting in defined time intervals.
-BACnet_TrendLog	20	Trend Log. Archives a property of a referenced object and, when predefined conditions are met, saves the value of the property and a timestamp in an internal buffer for subsequent retrieval.
-BACnet_Device	8	BACnet device. Defines a standard object whose properties represent the externally visible characteristics of a BACnet device.
-"""
