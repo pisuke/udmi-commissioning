@@ -13,7 +13,7 @@ __author__ = "Francesco Anselmo"
 __copyright__ = "Copyright 2025"
 __credits__ = ["Francesco Anselmo"]
 __license__ = "MIT"
-__version__ = "0.4"
+__version__ = "0.3"
 __maintainer__ = "Francesco Anselmo"
 __email__ = "francesco.anselmo@gmail.com"
 __status__ = "Dev"
@@ -27,7 +27,7 @@ import os
 import re
 import sys
 # import ipaddress
-# import logging
+import logging
 import time
 from pprint import pprint
 
@@ -45,143 +45,6 @@ def show_title():
 
     print(title)
 
-# -- Direct Device Discovery Function --
-def find_single_device(bacnet, device_ip):
-    """
-    Finds a single BACnet device at a known IP address.
-    Returns a list containing one device tuple: [(address, instance_id)].
-    """
-    # logging.info(f"Sending targeted Who-Is to {device_ip}...")
-    print(f"Sending targeted Who-Is to {device_ip}...")
-    # print(help(bacnet.whois_router_to_network))
-    bacnet.whois_router_to_network(network=None, destination=device_ip)
-    bacnet.whois(device_ip, global_broadcast=True)
-    # A short, fixed wait is acceptable here as we're targeting one known device
-    time.sleep(2)
-
-    # pprint(bacnet.devices)
-
-    # try:
-    #     for address, instance_id in bacnet.devices:
-    #         # The address in bacnet.devices may include the port (e.g., '10.0.0.5:47808')
-    #         if address.startswith(device_ip):
-    #             # logging.info(f"Device responded. Address: {address}, Instance ID: {instance_id}")
-    #             print(f"Device responded. Address: {address}, Instance ID: {instance_id}")
-    #             return [(address, instance_id)]
-    # except:
-    #     pass
-
-    # try:
-    for name, manufacturer, address, instance_id in bacnet.devices:
-        # The address in bacnet.devices may include the port (e.g., '10.0.0.5:47808')
-        if address.startswith(device_ip):
-            # logging.info(f"Device responded. Address: {address}, Instance ID: {instance_id}")
-            print(f"Device responded. Address: {address}, Instance ID: {instance_id}")
-            return [(name, manufacturer, address, instance_id)]
-    # except:
-    #     pass
-    
-    return []
-
-# -- Device Discovery Function --
-def discover_devices(bacnet, subnet_broadcast, interval, checks):
-    """
-    Discovers BACnet devices on a network using a stable discovery method.
-
-    Args:
-        bacnet (BAC0.lite): An initialized BAC0 client instance.
-        subnet_broadcast (str): The broadcast address of the target subnet.
-        interval (int): Polling interval for stability checks.
-        checks (int): Number of stable checks to wait for.
-
-    Returns:
-        list: A list of discovered device tuples (address, instance_id).
-    """
-    # logging.info(f"Sending Who-Is to {subnet_broadcast} and entering stable discovery loop...")
-    print(f"Sending Who-Is to {subnet_broadcast} and entering stable discovery loop...")
-    bacnet.whois_router_to_network(network=None, destination=subnet_broadcast)
-    bacnet.whois(subnet_broadcast, global_broadcast=True)
-
-    last_device_count = 0
-    stability_counter = 0
-    while stability_counter < checks:
-        # logging.info(f"Waiting {interval}s... (Stability Check: {stability_counter + 1}/{checks})")
-        # print(f"Waiting {interval}s... (Stability Check: {stability_counter + 1}/{checks})")
-        time.sleep(interval)
-        
-        current_device_count = len(bacnet.devices)
-        if current_device_count > last_device_count:
-            # logging.info(f"Found new device(s). Total now: {current_device_count}. Resetting counter.")
-            # print(f"Found new device(s). Total now: {current_device_count}. Resetting counter.")
-            print(f"Found new device(s). Total now: {current_device_count}.")
-            stability_counter = 0
-        else:
-            stability_counter += 1
-            # logging.info(f"No new devices. Stability count: {stability_counter}.")
-            # print(f"No new devices. Stability count: {stability_counter}.")
-        last_device_count = current_device_count
-    
-    # logging.info("Discovery stable.")
-    print("BACnet discovery completed.")
-    return bacnet.devices
-    # return (set(bacnet.discoveredDevices.keys()))
-
-# -- Point Enumeration Function --
-def enumerate_device_points(bacnet, discovered_devices):
-    """
-    Iterates through discovered devices to read their properties and enumerate their objects.
-    Returns a tuple: (devices_df, objects_by_device_dict).
-    """
-    device_properties = ['objectName', 'vendorName', 'modelName', 'serialNumber', 'description']
-    object_properties = ['objectName', 'description', 'presentValue', 'units']
-    
-    all_devices_data = []
-    objects_by_device = {}
-
-    logging.info(f"Found {len(discovered_devices)} device(s) to process. Starting enumeration...")
-
-    for address, instance_id in discovered_devices:
-        logging.info(f"--- Processing Device at {address} (Instance: {instance_id}) ---")
-        
-        device_info = {'deviceAddress': address, 'deviceInstance': instance_id}
-        try:
-            props = bacnet.readMultiple(f'{address} device {instance_id}', device_properties)
-            device_info['deviceName'] = props.get('objectName')
-            device_info.update({k: v for k, v in props.items() if k != 'objectName'})
-            all_devices_data.append(device_info)
-        except Exception as e:
-            logging.error(f"  - Could not read properties from device {instance_id}, skipping. Error: {e}")
-            continue
-
-        device_objects_data = []
-        try:
-            object_list = bacnet.read(f'{address} device {instance_id} objectList')
-            if not isinstance(object_list, list) or not object_list:
-                logging.warning(f"  - No objects found for device {instance_id}.")
-                objects_by_device[instance_id] = pd.DataFrame()
-                continue
-        except Exception as e:
-            logging.error(f"  - Could not read object list from device {instance_id}. Error: {e}")
-            continue
-
-        logging.info(f"  Enumerating {len(object_list)} objects...")
-        for obj_type, obj_instance in object_list:
-            if not isinstance(obj_type, str): continue
-            
-            row_data = {'objectType': obj_type, 'objectInstance': obj_instance}
-            try:
-                obj_props = bacnet.readMultiple(f'{address} {obj_type} {obj_instance}', object_properties)
-                row_data.update(obj_props)
-            except Exception as e:
-                logging.warning(f"    - Could not read properties for {obj_type} {obj_instance}: {e}")
-            
-            device_objects_data.append(row_data)
-
-        objects_by_device[instance_id] = pd.DataFrame(device_objects_data)
-
-    return pd.DataFrame(all_devices_data), objects_by_device
-
-
 def create_data(output_path, verbose, discovered_devices, network, devicesonly):
     devices = {}
     devices_info = {}
@@ -197,29 +60,25 @@ def create_data(output_path, verbose, discovered_devices, network, devicesonly):
             address, device_id, network, poll=0, object_list=custom_obj_list
         )
 
-        # devices_info[sanitized_dev_name] = make_device_info(output_path, verbose, each, network)
+        devices_info[sanitized_dev_name] = make_device_info(output_path, verbose, each, network)
 
         if not devicesonly:
             points[sanitized_dev_name] = make_points(output_path, verbose, devices[sanitized_dev_name], sanitized_dev_name)
-    # return (devices, devices_info, points)
-    return (devices,points)
+    return (devices, devices_info, points)
 
 def make_device_info_simple(output_path, verbose, dev, network):
     lst = {}
     
-    try:
-        address, device_id = dev
-    except:
-        name, manufacturer, address, device_id = dev
+    address, device_id = dev
 
-    # device = BAC0.device(
-    #         address, device_id, network, poll=0
-    #     )
+    #device = BAC0.device(
+    #        address, device_id, network, poll=0
+    #    )
     
-    # try:
-    #     ipaddress.ip_address(address)
-    # except ValueError:
-    #     pass
+    #try:
+    #    ipaddress.ip_address(address)
+    #except ValueError:
+    #    pass
     
     try:
         object_name, vendor_name, firmware_version, model_name, serial_number, description, location, application_software_version = (
@@ -229,14 +88,11 @@ def make_device_info_simple(output_path, verbose, dev, network):
             )
         )
 
-        # logging.info("object_name: %s vendor_name: %s firmware: %s model: %s serial: %s description: %s location: %s",  
-        #               object_name, vendor_name, firmware_version, model_name, serial_number, description, location, application_software_version)
-        # print(f"object_name: {object_name} vendor_name: %s firmware: %s model: %s serial: %s description: %s location: %s",  
-        #                vendor_name, firmware_version, model_name, serial_number, description, location, application_software_version)
+        logging.info("object_name: %s vendor_name: %s firmware: %s model: %s serial: %s description: %s location: %s",  
+                      object_name, vendor_name, firmware_version, model_name, serial_number, description, location, application_software_version)
 
     except (BAC0.core.io.IOExceptions.SegmentationNotSupported, Exception) as err:
-        # logging.exception(f"error reading from {address}/{device_id}")
-        print(f"error reading from {address}/{device_id}")
+        logging.exception(f"error reading from {address}/{device_id}")        
     
     sanitized_dev_name = sanitize_device_name(object_name)
     
@@ -478,14 +334,12 @@ def main():
     group.add_argument("-v", "--verbose", action="store_true", default=False, help="increase the verbosity level (optional)")
     parser.add_argument("-x", "--export",  default="bacnet-scan.xlsx", help="spreadsheet file name for scan results (optional), \
                         supported extensions are .xlsx and .ods")
-    parser.add_argument("-a", "--address", default="", help="IP address of BACnet interface in Mango (optional)")
+    parser.add_argument("-a", "--address", default="", help="IP address of BACnet interface (optional)")
     parser.add_argument("-n", "--networks", default="", help="comma separated target list of BACnet networks (optional)")
     parser.add_argument("-b", "--bacnetid", default="", help="restrict the scan to only one device with this BACnet ID (optional)")
     parser.add_argument("-r", "--range", default="",  help="restrict the scan to a device range in the format BACnet_ID_start,BACnet_ID_finish as in 1234,5678 (optional)")
     parser.add_argument("-d", "--deviceonly", action="store_true", default=False, help="only execute a BACnet WHOIS device scan with no point enumeration (optional)")
     parser.add_argument("-g", "--globalscan", action="store_true", default=False, help="execute a global broadcast BACnet scan (optional)")
-    parser.add_argument("-s", "--subnet_broadcast", default="", help="restrict the scan to a specific subnet broadcast address (optional)")
-    parser.add_argument("-i", "--ip", default="", help="restrict the scan to a specific device with this IP address (optional)")
 
     args = parser.parse_args()
 
@@ -493,13 +347,8 @@ def main():
         print("program arguments:")
         print(args)
         BAC0.log_level("info")
-        # log_level = logging.DEBUG
     else:
         BAC0.log_level("silence")
-        # log_level = logging.INFO
-        pass
-
-    # logging.basicConfig(level=log_level, format='%(asctime)s - %(levelname)s - %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
 
     BACNET_IP_ADDRESS = args.address
     SHEET_FILENAME = args.export
@@ -509,37 +358,18 @@ def main():
     BACNET_RANGE = args.range
     BACNET_GLOBAL_SCAN = args.globalscan
     DEVICE_ONLY_SCAN = args.deviceonly
-    TARGET_SUBNET_BROADCAST = args.subnet_broadcast 
-    TARGET_IP_ADDRESS = args.ip
     
     BACNET_RANGE_START = 0
     BACNET_RANGE_FINISH = 4194302
-    # -- Reliable Discovery Settings --
-    # How often to check for new devices (in seconds)
-    POLLING_INTERVAL = 5
-    # How many consecutive checks with no new devices before we assume discovery is complete
-    STABILITY_CHECKS = 3
-
     
-    # logging.info(("Bacnet Global Scan:", BACNET_GLOBAL_SCAN))
-    print(("Bacnet Global Scan:", BACNET_GLOBAL_SCAN))
+    print("Bacnet Global Scan:", BACNET_GLOBAL_SCAN)
 
-    # logging.info("Initializing BAC0 client...")
-    print("Initializing BAC0 client...")
     if BACNET_IP_ADDRESS != "":        
         bacnet = BAC0.lite(ip=BACNET_IP_ADDRESS)
     else:
         bacnet = BAC0.lite()
-
-    # Step 1: Discover Devices
     
-    if TARGET_SUBNET_BROADCAST != "":
-        discovered_devices = discover_devices(bacnet, TARGET_SUBNET_BROADCAST, POLLING_INTERVAL, STABILITY_CHECKS)        
-
-    elif TARGET_IP_ADDRESS != "":
-        discovered_devices = find_single_device(bacnet, TARGET_IP_ADDRESS)
-    
-    elif BACNET_NETWORKS == "":
+    if BACNET_NETWORKS == "":
         if BACNET_DEVICE_ID == "":
             if BACNET_RANGE != "":
                 BACNET_RANGE_START = BACNET_RANGE.split(",")[0]
@@ -547,16 +377,10 @@ def main():
                 print("start:", BACNET_RANGE_START)
                 print("finish:", BACNET_RANGE_FINISH)
                 discover = bacnet.discover(global_broadcast=BACNET_GLOBAL_SCAN, limits=(BACNET_RANGE_START,BACNET_RANGE_FINISH))
-                # discovered_devices = (set(bacnet.discoveredDevices.keys()))
-                discovered_devices = bacnet.devices
             else:
                 discover = bacnet.discover(global_broadcast=BACNET_GLOBAL_SCAN) 
-                # discovered_devices = (set(bacnet.discoveredDevices.keys()))
-                discovered_devices = bacnet.devices
         else:
             discover = bacnet.discover(global_broadcast=BACNET_GLOBAL_SCAN, limits=(BACNET_DEVICE_ID,BACNET_DEVICE_ID))
-            # discovered_devices = (set(bacnet.discoveredDevices.keys()))
-            discovered_devices = bacnet.devices
     else:
         bacnet_networks = string_to_integer_list(BACNET_NETWORKS)
         if BACNET_DEVICE_ID == "":
@@ -566,54 +390,47 @@ def main():
                 print("start:", BACNET_RANGE_START)
                 print("finish:", BACNET_RANGE_FINISH)
                 discover = bacnet.discover(global_broadcast=BACNET_GLOBAL_SCAN, limits=(BACNET_RANGE_START,BACNET_RANGE_FINISH), networks=bacnet_networks)
-                # discovered_devices = (set(bacnet.discoveredDevices.keys()))
-                discovered_devices = bacnet.devices
             else:
                 discover = bacnet.discover(global_broadcast=BACNET_GLOBAL_SCAN, networks=bacnet_networks) 
-                # discovered_devices = (set(bacnet.discoveredDevices.keys()))
-                discovered_devices = bacnet.devices
         elif BACNET_DEVICE_ID != "":
             BACNET_DEVICE_ID = int(BACNET_DEVICE_ID)
             discover = bacnet.discover(global_broadcast=BACNET_GLOBAL_SCAN, limits=(BACNET_DEVICE_ID,BACNET_DEVICE_ID), networks=bacnet_networks)
-            # discovered_devices = (set(bacnet.discoveredDevices.keys()))
-            discovered_devices = bacnet.devices
-
-    # print(discovered_devices)
 
     output_path = "bacnet_devices"
 
     if not os.path.exists(output_path):
         os.makedirs(output_path)
         
-    devices_df = pd.DataFrame()
+    #devices_df = pd.DataFrame()
     
-    # if DEVICE_ONLY_SCAN:
-    #     discovered_devices = (
-    #               set(bacnet.discoveredDevices.keys())
-    #           )
+    if DEVICE_ONLY_SCAN:
+        discovered_devices = (
+                  set(bacnet.discoveredDevices.keys())
+              )
               
-    # pprint(bacnet.devices)
-
-    bacnet_devices_df = pd.DataFrame(discovered_devices, columns=['device_name', 'manufacturer', 'address', 'device_id'])
-    bacnet_devices_df.index.name = "number"
-    bacnet_devices_df.to_csv(os.path.join(output_path, "%s_devicelist_simple.csv" % SHEET_FILENAME_NAME))
-
-    for device in discovered_devices:
-        # print(dir(device))
-        address = device[0]
-        device_id = device[1]
-        # print(address, device_id)
-        devices_df = pd.concat( [devices_df, make_device_info_simple(output_path, args.verbose, device, network=bacnet)], ignore_index=True, axis=1)
+        #pprint(bacnet.devices)
         
-    # pprint(devices_df)
+        devices_df = pd.DataFrame()
+        
+        for device in discovered_devices:
+            # print(dir(device))
+            address = device[0]
+            device_id = device[1]
+            print(address, device_id)
+            devices_df = pd.concat( [devices_df, make_device_info_simple(output_path, args.verbose, device, network=bacnet)], ignore_index=True, axis=1)
+            
+        pprint(devices_df)
+    
+        devices_df = devices_df.transpose()
+        devices_df.index.name = "number"
+        print(tabulate(devices_df, headers='keys', tablefmt='psql'))
+        devices_df.to_csv(os.path.join(output_path, "%s.csv" % SHEET_FILENAME_NAME))
 
-    #for index, row in devices_info.iterrows():
-    devices_df = devices_df.transpose()
-    devices_df.index.name = "number"
-    print(tabulate(devices_df, headers='keys', tablefmt='psql'))
-    devices_df.to_csv(os.path.join(output_path, "%s_devicelist.csv" % SHEET_FILENAME_NAME))
-
-    #pprint(bacnet_devices_df)
+        #bacnet_devices_df = pd.DataFrame(bacnet.devices, columns=['device_name', 'manufacturer', 'address', 'device_id'])
+        #bacnet_devices_df.index.name = "number"
+        #bacnet_devices_df.to_csv(os.path.join(output_path, "%s_devicelist.csv" % SHEET_FILENAME_NAME))
+    
+        #pprint(bacnet_devices_df)
     
     #devices = []
     #for d_name, d_manufacturer, d_address, d_device_id in bacnet.devices:
@@ -640,27 +457,34 @@ def main():
     #    except:
     #       pass
     #    print(object_name, object_list)
-
     
     if not DEVICE_ONLY_SCAN:
         
+        #for device in discovered_devices:
+        #    # print(dir(device))
+        #    address = device[0]
+        #    device_id = device[1]
+        #    print(address, device_id)
+        #    devices_df = pd.concat( [devices_df, make_device_info_simple(output_path, args.verbose, device, network=bacnet)], ignore_index=True, axis=1)
+        
+        #pprint(devices_df)
+    
         #devices_df = devices_df.transpose()
         #devices_df.index.name = "number"
         #print(tabulate(devices_df, headers='keys', tablefmt='psql'))
         #devices_df.to_csv(os.path.join(output_path, "%s.csv" % SHEET_FILENAME_NAME))
 
-        # devices, devices_info, points = create_data(output_path, args.verbose, bacnet.devices, network=bacnet, devicesonly=DEVICE_ONLY_SCAN)
-        devices, points = create_data(output_path, args.verbose, bacnet.devices, network=bacnet, devicesonly=DEVICE_ONLY_SCAN)
+        devices, devices_info, points = create_data(output_path, args.verbose, bacnet.devices, network=bacnet, devicesonly=DEVICE_ONLY_SCAN)
         
-        # #print(tabulate(devices_info, headers='keys', tablefmt='psql'))
-        # devices_df = pd.DataFrame()
-        # #for index, row in devices_info.iterrows():
-        # for key, value in devices_info.items():
-        #     devices_df = pd.concat( [devices_df, value], ignore_index=True, axis=1)
-        # #devices_df = pd.DataFrame.from_dict(devices_info, orient='index')
-        # devices_df = devices_df.transpose()
-        # devices_df.index.name = "number"
-        # print(tabulate(devices_df, headers='keys', tablefmt='psql'))
+        #print(tabulate(devices_info, headers='keys', tablefmt='psql'))
+        devices_df = pd.DataFrame()
+        #for index, row in devices_info.iterrows():
+        for key, value in devices_info.items():
+            devices_df = pd.concat( [devices_df, value], ignore_index=True, axis=1)
+        #devices_df = pd.DataFrame.from_dict(devices_info, orient='index')
+        devices_df = devices_df.transpose()
+        devices_df.index.name = "number"
+        print(tabulate(devices_df, headers='keys', tablefmt='psql'))
 
         make_sheet(devices_df, points, os.path.join(output_path, SHEET_FILENAME))
 
