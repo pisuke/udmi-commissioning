@@ -12,7 +12,7 @@
 # xlwt
 # openpyxl
 # odfpy
-# pandas
+pandas
 # tabulate
 # google-cloud-pubsub
 # #BAC0==21.12.03
@@ -26,7 +26,8 @@ BAC0==23.7.3
 bacpypes==0.18.7
 # bacpypes==0.19.0
 #bokeh
-cffi==1.16.0
+# cffi==1.16.0
+cffi
 colorama==0.4.6
 cryptography==43.0.0
 et-xmlfile==1.1.0
@@ -37,7 +38,7 @@ netifaces
 numpy==2.0.1
 openpyxl==3.1.5
 packaging==24.1
-pandas==2.2.2
+# pandas==2.2.2
 pd==0.0.4
 pillow
 pluggy==1.5.0
@@ -59,3 +60,4 @@ openpyxl
 odfpy
 tabulate
 google-cloud-pubsub
+pyfiglet
