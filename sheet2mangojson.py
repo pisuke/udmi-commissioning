@@ -497,7 +497,7 @@ def main():
                 mango_proxydevices_array_string += "]"
                                        
                 proxy_devices_to_be_exported = len(proxy_devices)
-                mango_publisher_xid = "PUB_UDMI_%s" % publisher_name
+                mango_publisher_xid = "PUB_UDMI_BACNET_%s" % publisher_name
                 mango_publisher_name = publisher_name
                           
                 output_mango_udmi_publisher_file.write(TEMPLATE_MANGO_UDMI_PUBLISHER.substitute(
