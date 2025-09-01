@@ -14,7 +14,7 @@ __author__ = "Francesco Anselmo"
 __copyright__ = "Copyright 2025"
 __credits__ = ["Francesco Anselmo"]
 __license__ = "MIT"
-__version__ = "0.2"
+__version__ = "0.1"
 __maintainer__ = "Francesco Anselmo"
 __email__ = "francesco.anselmo@gmail.com"
 __status__ = "Dev"
@@ -210,7 +210,7 @@ def show_title():
  _ __ ___   __ _ _ __   __ _  ___ (_)___  ___  _ __  
 | '_ ` _ \ / _` | '_ \ / _` |/ _ \| / __|/ _ \| '_ \ 
 | | | | | | (_| | | | | (_| | (_) | \__ \ (_) | | | |
-|_| |_|_|_|\__,_|_| |_|\__, |\___// |___/\___/|_| |_|
+|_| |_| |_|\__,_|_| |_|\__, |\___// |___/\___/|_| |_|
                        |___/    |__/                 
 
     """
