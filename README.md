@@ -1,4 +1,4 @@
-## UDMI commissioning tool
+## UDMI commissioning tools
 
 The aim of the UDMI commissioning tool is to compare the values 
 of data points from the local network (BACnet or Modbus values)
@@ -32,7 +32,7 @@ After this, install the python library dependencies:
 python3 -m pip install -r requirements.txt
 ```
 
-### Use
+## bacnet-scan.py:
 
 
 #### Input file generation from BACnet scan
@@ -82,6 +82,8 @@ See below the content of the output `.xlsx` file.
 ![BACnet scan output](img/bacnet-scan-output.png)
 
 Other spreadsheet format and extensions that can be used are `.xls` and `.ods`.
+
+## udmi-commissioning.py:
 
 #### Addition of cloud point names
 
@@ -142,7 +144,6 @@ The content of the output spreadsheet file will now include the commissioning va
 
 ![UDMI commissioning validation output](img/output.png)
 
-"""
 ## sheet2mangojson.py:
 
 The aim of the `sheet2mangojson.py` tool is to convert structured spreadsheet data (containing BACnet scan results and BDNS/DBO mappings) directly into the Mango Automation JSON configuration files.
@@ -225,4 +226,3 @@ The script **must** be provided these two arguments when run in CLI mode:
 | `-r`, `--registry` | `<ID>` | IoT Core registry ID for the UDMI publisher. | `ZZ-ABC-DEF` |
 | `-s`, `--site` | `<name>` | IoT Core site name for the UDMI publisher. | `ZZ-ABC-DEF` |
 | `--hostname` | `<host>` | UDMI Hostname (used for V5.4.* templates). | `mqtt.bos.goog` |
-"""
