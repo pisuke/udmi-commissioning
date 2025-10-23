@@ -141,3 +141,88 @@ This key combination will be intercepted by the program to save the output file.
 The content of the output spreadsheet file will now include the commissioning validation output, as shown below:
 
 ![UDMI commissioning validation output](img/output.png)
+
+"""
+## sheet2mangojson.py:
+
+The aim of the `sheet2mangojson.py` tool is to convert structured spreadsheet data (containing BACnet scan results and BDNS/DBO mappings) directly into the Mango Automation JSON configuration files.
+
+The tool adheres to specific UDMI driver versions (supporting both **v5.4.*** and **v5.3.*** formats) and handles generating BACnet Data Sources and UDMI Publisher configurations, including proxy devices and key generation.
+
+### Installation
+
+This tool depends on several standard Python libraries. It is highly recommended to create and activate a Python virtual environment first:
+
+1. **Create a Virtual Environment (Recommended):**
+
+   ```
+   python3 -m venv venv
+   source venv/bin/activate
+   ```
+
+2. **Install Required Python Packages:**
+
+   ```
+   python3 -m pip install -r requirements.txt
+   ```
+
+3. **System Dependencies (Linux/Debian/Ubuntu Only):**
+   Since the script uses a graphical interface (Tkinter) in GUI mode, you may need to install the following system dependency first:
+
+   ```
+   sudo apt install python3-tk
+   ```
+
+### Use
+
+The script offers two main modes for execution:
+
+#### Interactive GUI Mode (Default)
+
+Run the script without any command-line arguments to launch the graphical configuration window. This allows you to set all parameters via a structured form.
+
+```
+./sheet2mangojson.py
+```
+
+#### Command Line Interface (CLI) Mode
+
+Pass the required input and output arguments to run the script non-interactively.
+
+```
+./sheet2mangojson.py -i <input_file> -o <output_prefix> [optional_arguments]
+```
+
+### Command Line Options (`-h` Help)
+
+Running `./sheet2mangojson.py -h` will display all available options and defaults.
+
+#### Required Arguments
+
+The script **must** be provided these two arguments when run in CLI mode:
+
+| **Flag** | **Argument Name** | **Description** |
+| :--- | :--- | :--- |
+| `-i`, `--input` | `<path>` | **[REQUIRED]** Input spreadsheet file path (e.g., `scan.xlsx`). |
+| `-o`, `--output` | `<prefix>` | **[REQUIRED]** Output file prefix (e.g., `site_config` generates `site_config_bacnet_config.json`, etc.). |
+
+#### Optional Arguments (Defaults)
+
+| **Flag** | **Argument Name** | **Description** | **Default Value** |
+| :--- | :--- | :--- | :--- |
+| `-v`, `--verbose` | `[action: store_true]` | Enable detailed debug output for increased logging. | `False` |
+| `--udmi-version` | `5.4.*` or `5.3.*` | Select the target Mango UDMI driver version. | `5.4.*` |
+| `-u`, `--unique` | `[action: store_true]` | Create a unique BACnet Data Source per device found in the spreadsheet. | `True` |
+| `--ds-enabled` | `True` or `False` | Set the BACnet Data Source's initial 'enabled' status. | `True` |
+| `-l`, `--localdevice` | `<ID>` | ID of the BACnet Local Device in Mango. | `98777` |
+| `-b`, `--broadcast` | `<IP>` | Broadcast address for the BACnet Local Device. | `255.255.255.255` |
+| `--timeout` | `<ms>` | BACnet Local Device 'timeout' in milliseconds. | `30000 ms` |
+| `--retries` | `<count>` | BACnet Local Device 'retries' count. | `0` |
+| `--segtimeout` | `<ms>` | BACnet Local Device 'segTimeout' in milliseconds. | `10000 ms` |
+| `-p`, `--publisher` | `<name>` | Name for the Mango UDMI publisher device. | `CGWV-1` |
+| `-j`, `--project` | `<ID>` | GCP project ID for the UDMI publisher. | `bos-platform-prod` |
+| `-g`, `--region` | `<region>` | GCP region for the UDMI publisher. | `us-central1` |
+| `-r`, `--registry` | `<ID>` | IoT Core registry ID for the UDMI publisher. | `ZZ-ABC-DEF` |
+| `-s`, `--site` | `<name>` | IoT Core site name for the UDMI publisher. | `ZZ-ABC-DEF` |
+| `--hostname` | `<host>` | UDMI Hostname (used for V5.4.* templates). | `mqtt.bos.goog` |
+"""

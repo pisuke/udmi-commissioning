@@ -7,7 +7,8 @@
   to a Mango JSON input file.
 
   [Usage] 
-  python3 sheet2mangojson.py
+  1. Interactive GUI mode: python3 sheet2mangojson.py
+  2. CLI mode: python3 sheet2mangojson.py -i <input_file> -o <output_prefix> [options]
 """
 
 __author__ = "Francesco Anselmo"
@@ -27,6 +28,7 @@ import os
 import socket
 import ipaddress
 import uuid 
+import sys # Required for checking command-line arguments
 from string import Template
 from cryptography.hazmat.primitives import serialization as crypto_serialization
 from cryptography.hazmat.primitives.asymmetric import rsa
@@ -361,9 +363,10 @@ def generate_udmi_config_xid(registry_id, project_id):
     # Replace any leftover underscores/dots with hyphens.
     xid = f"UDMI-CONFIG-{project_id}-{registry_id}"
     return xid.upper().replace('_', '-').replace('.', '-')
-  
-# --- GUI CLASS (Updated for Sections and UDMI Version Dropdown) ---
+
+# --- GUI CLASS (Unchanged) ---
 class ConfigGUI:
+    # ... (GUI Class definition remains the same)
     def __init__(self, master):
         self.master = master
         master.title("sheet2mangojson - configuration")
@@ -387,7 +390,6 @@ class ConfigGUI:
             'seg_timeout': '10000',
             'ds_enabled': tk.BooleanVar(value=True), 
             'debug_mode': tk.BooleanVar(value=False), 
-            # NEW DEFAULT: UDMI Version
             'udmi_version': tk.StringVar(value='5.4.*'), 
         }
         
@@ -396,7 +398,6 @@ class ConfigGUI:
             ("1. File & General Configuration", [
                 ("Input Spreadsheet", 'input_file', True),
                 ("Output File Prefix", 'output_prefix', True),
-                # NEW DROPDOWN FIELD
                 ("UDMI Driver Version", 'udmi_version', ['5.4.*', '5.3.*'], 'dropdown'),
                 ("Enable Verbose Output", 'debug_mode', False, 'checkbox'),
             ]),
@@ -436,24 +437,18 @@ class ConfigGUI:
                 # Check for dropdown field type
                 if len(item) == 4 and item[3] == 'dropdown':
                     label_text, var_name, options, _ = item
-                    # Use StringVar set in defaults
                     var = self.defaults.get(var_name)
                     
-                    # Label
                     tk.Label(label_frame, text=f"{label_text}:").grid(row=r, column=0, sticky='w', padx=5, pady=2)
                     
-                    # Dropdown Menu
-                    # Use tk.OptionMenu, passing the master frame, the control variable, and all options
                     option_menu = tk.OptionMenu(label_frame, var, *options)
                     option_menu.grid(row=r, column=1, padx=5, pady=2, sticky='ew')
                     self.fields[var_name] = var
                     
                 else: # Handles 'text' (3-tuple) and 'checkbox' (4-tuple)
-                    # Normalize item to 4-tuple (Label Text, Var Name, Required, Field Type)
                     field_data = item + ('text',) if len(item) == 3 else item
                     label_text, var_name, required, field_type = field_data
                     
-                    # Label
                     tk.Label(label_frame, text=label_text + ( " *" if required else "") + ":").grid(row=r, column=0, sticky='w', padx=5, pady=2)
                     
                     if field_type == 'text':
@@ -473,11 +468,9 @@ class ConfigGUI:
 
                 r += 1
             
-            # Configure grid weight for better resizing behavior
             label_frame.grid_columnconfigure(1, weight=1)
             frame_row += 1
 
-        # Run Button (placed outside the sections, spanning the width)
         tk.Button(main_frame, text="Run Script", command=self.validate_and_run, bg='green', fg='white').grid(row=frame_row, column=0, pady=10, sticky='ew')
 
     def browse_file(self):
@@ -512,15 +505,52 @@ class ConfigGUI:
 
         run_core_logic(data)
 
+# --- Argument Mapping Function ---
+def map_args_to_data(args, defaults):
+    """
+    Converts argparse namespace object into the standardized data dictionary
+    required by run_core_logic.
+    """
+    data = {
+        'input_file': args.input,
+        'output_prefix': args.output,
+        
+        'localdevice': str(args.localdevice),
+        'broadcast': args.broadcast,
+        'publisher': args.publisher,
+        'project': args.project,
+        'region': args.region,
+        'registry': args.registry,
+        'site': args.site,
+        'hostname': args.hostname,
+        
+        'unique': args.unique, # Boolean from store_true
+        
+        # New customizable BACnet fields
+        'timeout': str(args.timeout),
+        'retries': str(args.retries),
+        'seg_timeout': str(args.segtimeout),
+        
+        # Boolean mapping: 'True'/'False' string in CLI to Python bool/string in data dict
+        'ds_enabled': args.ds_enabled.lower() == 'true',
+        
+        # Verbosity/Debug mapping
+        'debug_mode': args.verbose,
+        
+        # UDMI Version mapping
+        'udmi_version': args.udmi_version,
+    }
+    return data
+
 # --- CORE LOGIC FUNCTION (Optimized and Updated) ---
 
 def run_core_logic(data):
     """
-    Executes the main logic of the script using parameters supplied by the GUI.
+    Executes the main logic of the script using parameters supplied by the GUI/CLI.
     """
     show_title()
 
-    # Map the GUI data keys
+    # Map the standardized data dictionary keys
     bacnet_localdevice_id = data['localdevice']
     broadcast_address = data['broadcast'] 
     publisher_name = data['publisher']
@@ -533,19 +563,19 @@ def run_core_logic(data):
     output_prefix = data['output_prefix']
     unique_ds = data['unique']
     
-    # BACnet Local Device parameters
+    # BACnet Local Device parameters (as strings)
     timeout = data['timeout']
     retries = data['retries']
     seg_timeout = data['seg_timeout']
     
-    # Data Source Enabled status (convert boolean True/False to JSON string "true"/"false")
+    # Data Source Enabled status (convert boolean back to JSON string "true"/"false")
+    # Note: data['ds_enabled'] is True/False here, convert to string for substitution
     ds_enabled = str(data['ds_enabled']).lower()
     
-    # Verbosity Level is now derived from the checkbox state
+    # Verbosity Level
     debug_mode = data.get('debug_mode', False)
     verbosity_level = 2 if debug_mode else 1
     
-    # NEW: UDMI Version captured from the dropdown
     udmi_version = data['udmi_version']
         
     def log(level, message):
@@ -560,15 +590,13 @@ def run_core_logic(data):
         T_BACNET_DS = TEMPLATE_BACNET_DATASOURCE_V5_3
         T_MANGO_SYS = TEMPLATE_MANGO_SYSTEM_SETTINGS_V5_3
         T_MANGO_PUB = TEMPLATE_MANGO_UDMI_PUBLISHER_V5_3
-        # Note: UDMI Config XID and Hostname are ignored for V5.3.* System Settings
-        udmi_config_xid = "N/A" # Set for logging clarity, but not used in V5.3 template
+        udmi_config_xid = "N/A"
     elif udmi_version == '5.4.*':
         log(1, "--- Using UDMI V5.4.* Configuration Templates ---")
         T_BACNET_LD = TEMPLATE_BACNET_LOCALDEVICE_V5_4
         T_BACNET_DS = TEMPLATE_BACNET_DATASOURCE_V5_4
         T_MANGO_SYS = TEMPLATE_MANGO_SYSTEM_SETTINGS_V5_4
         T_MANGO_PUB = TEMPLATE_MANGO_UDMI_PUBLISHER_V5_4
-        # Note: UDMI Config XID is required for V5.4.* System Settings/Publisher
         udmi_config_xid = generate_udmi_config_xid(registry_id, gcp_project_id)
     else:
         log(0, f"ERROR: Unsupported UDMI version selected: {udmi_version}. Exiting.")
@@ -580,8 +608,9 @@ def run_core_logic(data):
     log(1, f"UDMI Version selected: {udmi_version}")
     log(1, "\n" + "="*50 + "\n")
 
+    # CLI mode validation is handled in main() but must be re-checked here
     if not (input_file and output_prefix and os.path.exists(input_file)):
-         log(0, "Script finished without processing due to file errors or user cancellation.")
+         log(0, "Script finished without processing due to missing file or prefix.")
          return
 
     # --- EFFICIENCY BOOST: Read all sheets into memory once ---
@@ -616,7 +645,6 @@ def run_core_logic(data):
         if sanitized_device_name == "BAC0" or isNaN(sanitized_device_name):
             continue
 
-        # Use the cached data
         points_data = all_sheets_data.get(sanitized_device_name) 
         
         if points_data is not None:
@@ -694,7 +722,6 @@ def run_core_logic(data):
         
         # System Settings Template (V5.3 vs V5.4)
         if udmi_version == '5.4.*':
-            # V5.4 requires complex substitution including XID and Hostname
             out_udmi.write(T_MANGO_SYS.substitute(
                 gcp_project_id=data['project'], 
                 gcp_cloud_region=data['region'], 
@@ -704,7 +731,6 @@ def run_core_logic(data):
                 hostname=data['hostname'] 
             ))
         else:
-            # V5.3 uses simpler template without XID and Hostname
             out_udmi.write(T_MANGO_SYS.substitute(
                 gcp_project_id=data['project'], 
                 gcp_cloud_region=data['region'], 
@@ -733,7 +759,6 @@ def run_core_logic(data):
                 mango_proxydevices_array=mango_proxydevices_array_string,
                 mango_rsa_privatekey=mango_rsa_privatekey,
                 mango_rsa_publickey=mango_rsa_publickey
-                # V5.3 template omits udmiConfigXid, deviceId, certificates
             ))
 
 
@@ -832,10 +857,147 @@ def run_core_logic(data):
 # --- MAIN EXECUTION BLOCK ---
 
 def main():
-    # Launch the GUI
-    root = tk.Tk()
-    app = ConfigGUI(root)
-    root.mainloop()
+    # Define default values for CLI mode (matching GUI defaults for consistency)
+    CLI_DEFAULTS = {
+        'localdevice': '98777',
+        'broadcast': '255.255.255.255',
+        'publisher': 'CGWV-1',
+        'project': 'bos-platform-prod',
+        'region': 'us-central1',
+        'registry': 'ZZ-ABC-DEF',
+        'site': 'ZZ-ABC-DEF',
+        'hostname': 'mqtt.bos.goog', 
+        'unique': True,
+        'timeout': 30000,
+        'retries': 0,
+        'segtimeout': 10000,
+        'ds_enabled': 'True', # Use string 'True'/'False' for CLI argument compatibility
+        'udmi_version': '5.4.*',
+        'verbose': False # Maps to debug_mode
+    }
+
+    # --- Custom Help Text ---
+    epilog_text = f"""
+    --- EXAMPLES ---
+    1. Interactive GUI Mode (no arguments):
+       $ ./sheet2mangojson.py
+
+    2. CLI Quick Run (using defaults for all optional fields):
+       $ ./sheet2mangojson.py -i bacnet-scan.xlsx -o ZZ-ABC-DEF_round-1
+
+    3. CLI with Custom BACnet settings and V5.3 UDMI:
+       $ ./sheet2mangojson.py -i scan.xlsx -o config -l 12345 --udmi-version 5.3.* --timeout 15000 --retries 1 --ds-enabled False
+    """
+    
+    parser = argparse.ArgumentParser(
+        description="Converts BACnet spreadsheet data to Mango JSON configuration files.",
+        formatter_class=argparse.RawTextHelpFormatter, # Allows custom formatting for epilog
+        epilog=epilog_text
+    )
+    
+    # --- Mode Detection (Primary Arguments - Clearly Marked as Required) ---
+    parser.add_argument(
+        "-i", "--input", default=None,
+        required=False, # Set to False here, handled by custom logic below
+        help="[REQUIRED] Input spreadsheet file path."
+    )
+    parser.add_argument(
+        "-o", "--output", default=None,
+        required=False, # Set to False here, handled by custom logic below
+        help="[REQUIRED] Output file prefix."
+    )
+
+    # --- General/Verbosity Arguments ---
+    parser.add_argument(
+        "-v", "--verbose", action="store_true", default=CLI_DEFAULTS['verbose'],
+        help=f"[OPTIONAL] Enable detailed debug output (Default: {CLI_DEFAULTS['verbose']})."
+    )
+    parser.add_argument(
+        "--udmi-version", type=str, choices=['5.4.*', '5.3.*'], default=CLI_DEFAULTS['udmi_version'],
+        help=f"[OPTIONAL] Select UDMI driver version (Default: {CLI_DEFAULTS['udmi_version']})."
+    )
+
+    # --- BACnet Configuration Arguments ---
+    parser.add_argument(
+        "-u", "--unique", action="store_true", default=CLI_DEFAULTS['unique'],
+        help=f"[OPTIONAL] Create unique BACnet data sources per device (Default: {CLI_DEFAULTS['unique']})."
+    )
+    parser.add_argument(
+        "--ds-enabled", type=str, choices=['True', 'False'], default=CLI_DEFAULTS['ds_enabled'],
+        help=f"[OPTIONAL] Set BACnet Data Source 'enabled' status (Default: {CLI_DEFAULTS['ds_enabled']})."
+    )
+    parser.add_argument(
+        "-l", "--localdevice", type=int, default=int(CLI_DEFAULTS['localdevice']),
+        help=f"[OPTIONAL] ID of the BACnet Local Device in Mango (Default: {CLI_DEFAULTS['localdevice']})."
+    )
+    parser.add_argument(
+        "-b", "--broadcast", type=str, default=CLI_DEFAULTS['broadcast'],
+        help=f"[OPTIONAL] Broadcast address for the BACnet Local Device (Default: {CLI_DEFAULTS['broadcast']})."
+    )
+    parser.add_argument(
+        "--timeout", type=int, default=CLI_DEFAULTS['timeout'],
+        help=f"[OPTIONAL] BACnet Local Device 'timeout' in ms (Default: {CLI_DEFAULTS['timeout']} ms)."
+    )
+    parser.add_argument(
+        "--retries", type=int, default=CLI_DEFAULTS['retries'],
+        help=f"[OPTIONAL] BACnet Local Device 'retries' count (Default: {CLI_DEFAULTS['retries']})."
+    )
+    parser.add_argument(
+        "--segtimeout", type=int, default=CLI_DEFAULTS['segtimeout'],
+        help=f"[OPTIONAL] BACnet Local Device 'segTimeout' in ms (Default: {CLI_DEFAULTS['segtimeout']} ms)."
+    )
+
+    # --- UDMI Publisher Arguments ---
+    parser.add_argument(
+        "-p", "--publisher", type=str, default=CLI_DEFAULTS['publisher'],
+        help=f"[OPTIONAL] Name for the Mango UDMI publisher device (Default: {CLI_DEFAULTS['publisher']})."
+    )
+    parser.add_argument(
+        "-j", "--project", type=str, default=CLI_DEFAULTS['project'],
+        help=f"[OPTIONAL] GCP project ID for the UDMI publisher (Default: {CLI_DEFAULTS['project']})."
+    )
+    parser.add_argument(
+        "-g", "--region", type=str, default=CLI_DEFAULTS['region'],
+        help=f"[OPTIONAL] GCP region for the UDMI publisher (Default: {CLI_DEFAULTS['region']})."
+    )
+    parser.add_argument(
+        "-r", "--registry", type=str, default=CLI_DEFAULTS['registry'],
+        help=f"[OPTIONAL] IoT Core registry ID for the UDMI publisher (Default: {CLI_DEFAULTS['registry']})."
+    )
+    parser.add_argument(
+        "-s", "--site", type=str, default=CLI_DEFAULTS['site'],
+        help=f"[OPTIONAL] IoT Core site name for the UDMI publisher (Default: {CLI_DEFAULTS['site']})."
+    )
+    parser.add_argument(
+        "--hostname", type=str, default=CLI_DEFAULTS['hostname'],
+        help=f"[OPTIONAL] UDMI Hostname (used for V5.4.* templates) (Default: {CLI_DEFAULTS['hostname']})."
+    )
+
+    # --- Execution Logic ---
+    
+    # Check if any arguments were passed (excluding the script name itself)
+    if len(sys.argv) > 1:
+        # CLI Mode: Parse arguments
+        args = parser.parse_args()
+        
+        # Simple validation for required CLI fields
+        if not args.input or not args.output:
+            # Manually trigger help and error if required fields are missing
+            print("ERROR: Arguments -i/--input and -o/--output are required when running in CLI mode.\n")
+            parser.print_help()
+            sys.exit(1)
+
+        show_title()
+        # Map CLI arguments to the standardized data dictionary structure
+        data = map_args_to_data(args, CLI_DEFAULTS)
+        
+        # Run core logic
+        run_core_logic(data)
+    else:
+        # GUI Mode: Launch GUI
+        root = tk.Tk()
+        app = ConfigGUI(root)
+        root.mainloop()
 
 if __name__ == "__main__":
     main()
