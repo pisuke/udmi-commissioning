@@ -4,7 +4,7 @@ ROOT_DIR=$(realpath $(dirname $0)/)
 
 TMP_DIR=$(mktemp -d)
 OUT_DIR=$ROOT_DIR/dist
-OUT_FILE=$OUT_DIR/bacnet-scan-debian11
+OUT_FILE=$OUT_DIR/bacnet-scan-debian13
 
 echo Building binary to 
 cat >$TMP_DIR/build.sh <<-EOF
@@ -37,7 +37,7 @@ cat >$TMP_DIR/build.sh <<-EOF
             mv dist/bacnet-scan /tmp/bacnet-scan
 EOF
 
-podman run --rm --network host --volume $ROOT_DIR/:/src --volume $TMP_DIR:/tmp pyinstaller-builder-debian-11:latest /bin/bash /tmp/build.sh
+podman run --rm --network host --volume $ROOT_DIR/:/src --volume $TMP_DIR:/tmp pyinstaller-builder-debian-13:latest /bin/bash /tmp/build.sh
 mkdir -p $OUT_DIR
 mv $TMP_DIR/bacnet-scan $OUT_FILE
 chmod 777 $OUT_FILE
