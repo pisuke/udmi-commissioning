@@ -1,3 +1,3 @@
 #!/bin/bash -e
 
-podman build -f Dockerfile.ubuntu1604 -t pyinstaller-builder-ubuntu-1604 .
+podman build --network host -f Dockerfile.ubuntu1604 -t pyinstaller-builder-ubuntu-1604 .
