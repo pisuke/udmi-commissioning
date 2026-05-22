@@ -1,0 +1,1609 @@
+{
+    "systemSettings": {
+        "udmi.config": "[{\"xid\": \"UDMI-CONFIG-BOS-PLATFORM-PROD-ZZ-ABC-DEF\", \"iotProvider\": \"GBOS\", \"projectId\": \"bos-platform-prod\", \"cloudRegion\": \"us-central1\", \"registryId\": \"ZZ-ABC-DEF\", \"site\": \"ZZ-ABC-DEF\", \"hostname\": \"mqtt.bos.goog\"}]"
+    },
+    "publishers": [
+        {
+            "xid": "PUB_UDMI_BACNET_CGWV-1",
+            "name": "CGWV-1",
+            "enabled": false,
+            "type": "UDMI",
+            "snapshotSendPeriodType": "MINUTES",
+            "publishType": "ALL",
+            "alarmLevels": {
+                "POINT_DISABLED_EVENT": "URGENT",
+                "QUEUE_SIZE_WARNING_EVENT": "URGENT"
+            },
+            "caCertificate": null,
+            "clientCertificate": null,
+            "deviceId": "CGWV-1",
+            "gateway": true,
+            "proxyDevices": [
+                {
+                    "name": "FCU-10005"
+                },
+                {
+                    "name": "FCU-10101"
+                },
+                {
+                    "name": "FCU-10103"
+                },
+                {
+                    "name": "FCU-10104"
+                },
+                {
+                    "name": "FCU-10105"
+                },
+                {
+                    "name": "FCU-10107"
+                },
+                {
+                    "name": "FCU-10110"
+                },
+                {
+                    "name": "FCU-10112"
+                },
+                {
+                    "name": "FCU-10113"
+                },
+                {
+                    "name": "FCU-10117"
+                },
+                {
+                    "name": "FCU-10118"
+                }
+            ],
+            "privateKey": "<DYNAMIC_KEY_REMOVED_FOR_TEST>",
+            "publicKey": "<DYNAMIC_KEY_REMOVED_FOR_TEST>",
+            "udmiConfigXid": "UDMI-CONFIG-BOS-PLATFORM-PROD-ZZ-ABC-DEF",
+            "cacheDiscardSize": 50000,
+            "cacheWarningSize": 10000,
+            "publishAttributeChanges": false,
+            "publishPointEvents": false,
+            "sendSnapshot": false,
+            "snapshotSendPeriods": 5
+        }
+    ],
+    "publishedPoints": [
+        {
+            "name": "discharge_air_temperature_sensor",
+            "enabled": true,
+            "dataPointXid": "DP_57999_ANALOG_VALUE_0",
+            "deviceName": "FCU-10005",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "return_air_temperature_sensor",
+            "enabled": true,
+            "dataPointXid": "DP_57999_ANALOG_VALUE_1",
+            "deviceName": "FCU-10005",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "zone_air_temperature_sensor",
+            "enabled": true,
+            "dataPointXid": "DP_57999_ANALOG_VALUE_2",
+            "deviceName": "FCU-10005",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "zone_air_co2_concentration_sensor",
+            "enabled": true,
+            "dataPointXid": "DP_57999_ANALOG_VALUE_3",
+            "deviceName": "FCU-10005",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "default_setpoint",
+            "enabled": true,
+            "dataPointXid": "DP_57999_ANALOG_VALUE_4",
+            "deviceName": "FCU-10005",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "zone_air_temperature_setpoint",
+            "enabled": true,
+            "dataPointXid": "DP_57999_ANALOG_VALUE_7",
+            "deviceName": "FCU-10005",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "supply_air_low_limit_setpoint",
+            "enabled": true,
+            "dataPointXid": "DP_57999_ANALOG_VALUE_8",
+            "deviceName": "FCU-10005",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "supply_air_high_limit_setpoint",
+            "enabled": true,
+            "dataPointXid": "DP_57999_ANALOG_VALUE_9",
+            "deviceName": "FCU-10005",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "zone_air_deadband_temperature_setpoint",
+            "enabled": true,
+            "dataPointXid": "DP_57999_ANALOG_VALUE_10",
+            "deviceName": "FCU-10005",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "heating_water_valve_percentage_command",
+            "enabled": true,
+            "dataPointXid": "DP_57999_ANALOG_VALUE_11",
+            "deviceName": "FCU-10005",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "chilled_water_valve_percentage_command",
+            "enabled": true,
+            "dataPointXid": "DP_57999_ANALOG_VALUE_12",
+            "deviceName": "FCU-10005",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "discharge_fan_speed_percentage_command",
+            "enabled": true,
+            "dataPointXid": "DP_57999_ANALOG_VALUE_13",
+            "deviceName": "FCU-10005",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "min_fan_speed_setpoint",
+            "enabled": true,
+            "dataPointXid": "DP_57999_ANALOG_VALUE_14",
+            "deviceName": "FCU-10005",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "max_fan_speed_setpoint",
+            "enabled": true,
+            "dataPointXid": "DP_57999_ANALOG_VALUE_15",
+            "deviceName": "FCU-10005",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "thermal_min_fan_threshold_setpoint",
+            "enabled": true,
+            "dataPointXid": "DP_57999_ANALOG_VALUE_16",
+            "deviceName": "FCU-10005",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "thermal_max_fan_threshold_setpoint",
+            "enabled": true,
+            "dataPointXid": "DP_57999_ANALOG_VALUE_17",
+            "deviceName": "FCU-10005",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "offset_range_setpoint",
+            "enabled": true,
+            "dataPointXid": "DP_57999_ANALOG_VALUE_21",
+            "deviceName": "FCU-10005",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "discharge_fan_run_command",
+            "enabled": true,
+            "dataPointXid": "DP_57999_BINARY_VALUE_0",
+            "deviceName": "FCU-10005",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "discharge_fan_run_status",
+            "enabled": true,
+            "dataPointXid": "DP_57999_BINARY_VALUE_1",
+            "deviceName": "FCU-10005",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "offset_setpoint_night_reset",
+            "enabled": true,
+            "dataPointXid": "DP_57999_BINARY_VALUE_2",
+            "deviceName": "FCU-10005",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "discharge_air_temperature_sensor",
+            "enabled": true,
+            "dataPointXid": "DP_25199_ANALOG_VALUE_0",
+            "deviceName": "FCU-10101",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "return_air_temperature_sensor",
+            "enabled": true,
+            "dataPointXid": "DP_25199_ANALOG_VALUE_1",
+            "deviceName": "FCU-10101",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "zone_air_temperature_sensor",
+            "enabled": true,
+            "dataPointXid": "DP_25199_ANALOG_VALUE_2",
+            "deviceName": "FCU-10101",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "zone_air_co2_concentration_sensor",
+            "enabled": true,
+            "dataPointXid": "DP_25199_ANALOG_VALUE_3",
+            "deviceName": "FCU-10101",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "default_setpoint",
+            "enabled": true,
+            "dataPointXid": "DP_25199_ANALOG_VALUE_4",
+            "deviceName": "FCU-10101",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "zone_air_temperature_setpoint",
+            "enabled": true,
+            "dataPointXid": "DP_25199_ANALOG_VALUE_7",
+            "deviceName": "FCU-10101",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "supply_air_low_limit_setpoint",
+            "enabled": true,
+            "dataPointXid": "DP_25199_ANALOG_VALUE_8",
+            "deviceName": "FCU-10101",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "supply_air_high_limit_setpoint",
+            "enabled": true,
+            "dataPointXid": "DP_25199_ANALOG_VALUE_9",
+            "deviceName": "FCU-10101",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "zone_air_deadband_temperature_setpoint",
+            "enabled": true,
+            "dataPointXid": "DP_25199_ANALOG_VALUE_10",
+            "deviceName": "FCU-10101",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "heating_water_valve_percentage_command",
+            "enabled": true,
+            "dataPointXid": "DP_25199_ANALOG_VALUE_11",
+            "deviceName": "FCU-10101",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "chilled_water_valve_percentage_command",
+            "enabled": true,
+            "dataPointXid": "DP_25199_ANALOG_VALUE_12",
+            "deviceName": "FCU-10101",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "discharge_fan_speed_percentage_command",
+            "enabled": true,
+            "dataPointXid": "DP_25199_ANALOG_VALUE_13",
+            "deviceName": "FCU-10101",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "min_fan_speed_setpoint",
+            "enabled": true,
+            "dataPointXid": "DP_25199_ANALOG_VALUE_14",
+            "deviceName": "FCU-10101",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "max_fan_speed_setpoint",
+            "enabled": true,
+            "dataPointXid": "DP_25199_ANALOG_VALUE_15",
+            "deviceName": "FCU-10101",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "thermal_min_fan_threshold_setpoint",
+            "enabled": true,
+            "dataPointXid": "DP_25199_ANALOG_VALUE_16",
+            "deviceName": "FCU-10101",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "thermal_max_fan_threshold_setpoint",
+            "enabled": true,
+            "dataPointXid": "DP_25199_ANALOG_VALUE_17",
+            "deviceName": "FCU-10101",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "offset_range_setpoint",
+            "enabled": true,
+            "dataPointXid": "DP_25199_ANALOG_VALUE_21",
+            "deviceName": "FCU-10101",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "discharge_fan_run_command",
+            "enabled": true,
+            "dataPointXid": "DP_25199_BINARY_VALUE_0",
+            "deviceName": "FCU-10101",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "discharge_fan_run_status",
+            "enabled": true,
+            "dataPointXid": "DP_25199_BINARY_VALUE_1",
+            "deviceName": "FCU-10101",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "offset_setpoint_night_reset",
+            "enabled": true,
+            "dataPointXid": "DP_25199_BINARY_VALUE_2",
+            "deviceName": "FCU-10101",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "discharge_air_temperature_sensor",
+            "enabled": true,
+            "dataPointXid": "DP_25399_ANALOG_VALUE_0",
+            "deviceName": "FCU-10103",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "return_air_temperature_sensor",
+            "enabled": true,
+            "dataPointXid": "DP_25399_ANALOG_VALUE_1",
+            "deviceName": "FCU-10103",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "zone_air_temperature_sensor",
+            "enabled": true,
+            "dataPointXid": "DP_25399_ANALOG_VALUE_2",
+            "deviceName": "FCU-10103",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "zone_air_co2_concentration_sensor",
+            "enabled": true,
+            "dataPointXid": "DP_25399_ANALOG_VALUE_3",
+            "deviceName": "FCU-10103",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "default_setpoint",
+            "enabled": true,
+            "dataPointXid": "DP_25399_ANALOG_VALUE_4",
+            "deviceName": "FCU-10103",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "zone_air_temperature_setpoint",
+            "enabled": true,
+            "dataPointXid": "DP_25399_ANALOG_VALUE_7",
+            "deviceName": "FCU-10103",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "supply_air_low_limit_setpoint",
+            "enabled": true,
+            "dataPointXid": "DP_25399_ANALOG_VALUE_8",
+            "deviceName": "FCU-10103",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "supply_air_high_limit_setpoint",
+            "enabled": true,
+            "dataPointXid": "DP_25399_ANALOG_VALUE_9",
+            "deviceName": "FCU-10103",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "zone_air_deadband_temperature_setpoint",
+            "enabled": true,
+            "dataPointXid": "DP_25399_ANALOG_VALUE_10",
+            "deviceName": "FCU-10103",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "heating_water_valve_percentage_command",
+            "enabled": true,
+            "dataPointXid": "DP_25399_ANALOG_VALUE_11",
+            "deviceName": "FCU-10103",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "chilled_water_valve_percentage_command",
+            "enabled": true,
+            "dataPointXid": "DP_25399_ANALOG_VALUE_12",
+            "deviceName": "FCU-10103",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "discharge_fan_speed_percentage_command",
+            "enabled": true,
+            "dataPointXid": "DP_25399_ANALOG_VALUE_13",
+            "deviceName": "FCU-10103",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "min_fan_speed_setpoint",
+            "enabled": true,
+            "dataPointXid": "DP_25399_ANALOG_VALUE_14",
+            "deviceName": "FCU-10103",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "max_fan_speed_setpoint",
+            "enabled": true,
+            "dataPointXid": "DP_25399_ANALOG_VALUE_15",
+            "deviceName": "FCU-10103",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "thermal_min_fan_threshold_setpoint",
+            "enabled": true,
+            "dataPointXid": "DP_25399_ANALOG_VALUE_16",
+            "deviceName": "FCU-10103",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "thermal_max_fan_threshold_setpoint",
+            "enabled": true,
+            "dataPointXid": "DP_25399_ANALOG_VALUE_17",
+            "deviceName": "FCU-10103",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "offset_range_setpoint",
+            "enabled": true,
+            "dataPointXid": "DP_25399_ANALOG_VALUE_21",
+            "deviceName": "FCU-10103",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "discharge_fan_run_command",
+            "enabled": true,
+            "dataPointXid": "DP_25399_BINARY_VALUE_0",
+            "deviceName": "FCU-10103",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "discharge_fan_run_status",
+            "enabled": true,
+            "dataPointXid": "DP_25399_BINARY_VALUE_1",
+            "deviceName": "FCU-10103",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "offset_setpoint_night_reset",
+            "enabled": true,
+            "dataPointXid": "DP_25399_BINARY_VALUE_2",
+            "deviceName": "FCU-10103",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "discharge_air_temperature_sensor",
+            "enabled": true,
+            "dataPointXid": "DP_25499_ANALOG_VALUE_0",
+            "deviceName": "FCU-10104",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "return_air_temperature_sensor",
+            "enabled": true,
+            "dataPointXid": "DP_25499_ANALOG_VALUE_1",
+            "deviceName": "FCU-10104",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "zone_air_temperature_sensor",
+            "enabled": true,
+            "dataPointXid": "DP_25499_ANALOG_VALUE_2",
+            "deviceName": "FCU-10104",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "zone_air_co2_concentration_sensor",
+            "enabled": true,
+            "dataPointXid": "DP_25499_ANALOG_VALUE_3",
+            "deviceName": "FCU-10104",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "default_setpoint",
+            "enabled": true,
+            "dataPointXid": "DP_25499_ANALOG_VALUE_4",
+            "deviceName": "FCU-10104",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "zone_air_temperature_setpoint",
+            "enabled": true,
+            "dataPointXid": "DP_25499_ANALOG_VALUE_7",
+            "deviceName": "FCU-10104",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "supply_air_low_limit_setpoint",
+            "enabled": true,
+            "dataPointXid": "DP_25499_ANALOG_VALUE_8",
+            "deviceName": "FCU-10104",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "supply_air_high_limit_setpoint",
+            "enabled": true,
+            "dataPointXid": "DP_25499_ANALOG_VALUE_9",
+            "deviceName": "FCU-10104",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "zone_air_deadband_temperature_setpoint",
+            "enabled": true,
+            "dataPointXid": "DP_25499_ANALOG_VALUE_10",
+            "deviceName": "FCU-10104",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "heating_water_valve_percentage_command",
+            "enabled": true,
+            "dataPointXid": "DP_25499_ANALOG_VALUE_11",
+            "deviceName": "FCU-10104",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "chilled_water_valve_percentage_command",
+            "enabled": true,
+            "dataPointXid": "DP_25499_ANALOG_VALUE_12",
+            "deviceName": "FCU-10104",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "discharge_fan_speed_percentage_command",
+            "enabled": true,
+            "dataPointXid": "DP_25499_ANALOG_VALUE_13",
+            "deviceName": "FCU-10104",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "min_fan_speed_setpoint",
+            "enabled": true,
+            "dataPointXid": "DP_25499_ANALOG_VALUE_14",
+            "deviceName": "FCU-10104",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "max_fan_speed_setpoint",
+            "enabled": true,
+            "dataPointXid": "DP_25499_ANALOG_VALUE_15",
+            "deviceName": "FCU-10104",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "thermal_min_fan_threshold_setpoint",
+            "enabled": true,
+            "dataPointXid": "DP_25499_ANALOG_VALUE_16",
+            "deviceName": "FCU-10104",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "thermal_max_fan_threshold_setpoint",
+            "enabled": true,
+            "dataPointXid": "DP_25499_ANALOG_VALUE_17",
+            "deviceName": "FCU-10104",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "offset_range_setpoint",
+            "enabled": true,
+            "dataPointXid": "DP_25499_ANALOG_VALUE_21",
+            "deviceName": "FCU-10104",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "discharge_fan_run_command",
+            "enabled": true,
+            "dataPointXid": "DP_25499_BINARY_VALUE_0",
+            "deviceName": "FCU-10104",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "discharge_fan_run_status",
+            "enabled": true,
+            "dataPointXid": "DP_25499_BINARY_VALUE_1",
+            "deviceName": "FCU-10104",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "offset_setpoint_night_reset",
+            "enabled": true,
+            "dataPointXid": "DP_25499_BINARY_VALUE_2",
+            "deviceName": "FCU-10104",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "discharge_air_temperature_sensor",
+            "enabled": true,
+            "dataPointXid": "DP_25599_ANALOG_VALUE_0",
+            "deviceName": "FCU-10105",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "return_air_temperature_sensor",
+            "enabled": true,
+            "dataPointXid": "DP_25599_ANALOG_VALUE_1",
+            "deviceName": "FCU-10105",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "zone_air_temperature_sensor",
+            "enabled": true,
+            "dataPointXid": "DP_25599_ANALOG_VALUE_2",
+            "deviceName": "FCU-10105",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "zone_air_co2_concentration_sensor",
+            "enabled": true,
+            "dataPointXid": "DP_25599_ANALOG_VALUE_3",
+            "deviceName": "FCU-10105",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "default_setpoint",
+            "enabled": true,
+            "dataPointXid": "DP_25599_ANALOG_VALUE_4",
+            "deviceName": "FCU-10105",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "zone_air_temperature_setpoint",
+            "enabled": true,
+            "dataPointXid": "DP_25599_ANALOG_VALUE_7",
+            "deviceName": "FCU-10105",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "supply_air_low_limit_setpoint",
+            "enabled": true,
+            "dataPointXid": "DP_25599_ANALOG_VALUE_8",
+            "deviceName": "FCU-10105",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "supply_air_high_limit_setpoint",
+            "enabled": true,
+            "dataPointXid": "DP_25599_ANALOG_VALUE_9",
+            "deviceName": "FCU-10105",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "zone_air_deadband_temperature_setpoint",
+            "enabled": true,
+            "dataPointXid": "DP_25599_ANALOG_VALUE_10",
+            "deviceName": "FCU-10105",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "heating_water_valve_percentage_command",
+            "enabled": true,
+            "dataPointXid": "DP_25599_ANALOG_VALUE_11",
+            "deviceName": "FCU-10105",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "chilled_water_valve_percentage_command",
+            "enabled": true,
+            "dataPointXid": "DP_25599_ANALOG_VALUE_12",
+            "deviceName": "FCU-10105",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "discharge_fan_speed_percentage_command",
+            "enabled": true,
+            "dataPointXid": "DP_25599_ANALOG_VALUE_13",
+            "deviceName": "FCU-10105",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "min_fan_speed_setpoint",
+            "enabled": true,
+            "dataPointXid": "DP_25599_ANALOG_VALUE_14",
+            "deviceName": "FCU-10105",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "max_fan_speed_setpoint",
+            "enabled": true,
+            "dataPointXid": "DP_25599_ANALOG_VALUE_15",
+            "deviceName": "FCU-10105",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "thermal_min_fan_threshold_setpoint",
+            "enabled": true,
+            "dataPointXid": "DP_25599_ANALOG_VALUE_16",
+            "deviceName": "FCU-10105",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "thermal_max_fan_threshold_setpoint",
+            "enabled": true,
+            "dataPointXid": "DP_25599_ANALOG_VALUE_17",
+            "deviceName": "FCU-10105",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "offset_range_setpoint",
+            "enabled": true,
+            "dataPointXid": "DP_25599_ANALOG_VALUE_21",
+            "deviceName": "FCU-10105",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "discharge_fan_run_command",
+            "enabled": true,
+            "dataPointXid": "DP_25599_BINARY_VALUE_0",
+            "deviceName": "FCU-10105",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "discharge_fan_run_status",
+            "enabled": true,
+            "dataPointXid": "DP_25599_BINARY_VALUE_1",
+            "deviceName": "FCU-10105",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "offset_setpoint_night_reset",
+            "enabled": true,
+            "dataPointXid": "DP_25599_BINARY_VALUE_2",
+            "deviceName": "FCU-10105",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "discharge_air_temperature_sensor",
+            "enabled": true,
+            "dataPointXid": "DP_25799_ANALOG_VALUE_0",
+            "deviceName": "FCU-10107",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "return_air_temperature_sensor",
+            "enabled": true,
+            "dataPointXid": "DP_25799_ANALOG_VALUE_1",
+            "deviceName": "FCU-10107",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "zone_air_temperature_sensor",
+            "enabled": true,
+            "dataPointXid": "DP_25799_ANALOG_VALUE_2",
+            "deviceName": "FCU-10107",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "zone_air_co2_concentration_sensor",
+            "enabled": true,
+            "dataPointXid": "DP_25799_ANALOG_VALUE_3",
+            "deviceName": "FCU-10107",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "default_setpoint",
+            "enabled": true,
+            "dataPointXid": "DP_25799_ANALOG_VALUE_4",
+            "deviceName": "FCU-10107",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "zone_air_temperature_setpoint",
+            "enabled": true,
+            "dataPointXid": "DP_25799_ANALOG_VALUE_7",
+            "deviceName": "FCU-10107",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "supply_air_low_limit_setpoint",
+            "enabled": true,
+            "dataPointXid": "DP_25799_ANALOG_VALUE_8",
+            "deviceName": "FCU-10107",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "supply_air_high_limit_setpoint",
+            "enabled": true,
+            "dataPointXid": "DP_25799_ANALOG_VALUE_9",
+            "deviceName": "FCU-10107",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "zone_air_deadband_temperature_setpoint",
+            "enabled": true,
+            "dataPointXid": "DP_25799_ANALOG_VALUE_10",
+            "deviceName": "FCU-10107",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "heating_water_valve_percentage_command",
+            "enabled": true,
+            "dataPointXid": "DP_25799_ANALOG_VALUE_11",
+            "deviceName": "FCU-10107",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "chilled_water_valve_percentage_command",
+            "enabled": true,
+            "dataPointXid": "DP_25799_ANALOG_VALUE_12",
+            "deviceName": "FCU-10107",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "discharge_fan_speed_percentage_command",
+            "enabled": true,
+            "dataPointXid": "DP_25799_ANALOG_VALUE_13",
+            "deviceName": "FCU-10107",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "min_fan_speed_setpoint",
+            "enabled": true,
+            "dataPointXid": "DP_25799_ANALOG_VALUE_14",
+            "deviceName": "FCU-10107",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "max_fan_speed_setpoint",
+            "enabled": true,
+            "dataPointXid": "DP_25799_ANALOG_VALUE_15",
+            "deviceName": "FCU-10107",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "thermal_min_fan_threshold_setpoint",
+            "enabled": true,
+            "dataPointXid": "DP_25799_ANALOG_VALUE_16",
+            "deviceName": "FCU-10107",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "thermal_max_fan_threshold_setpoint",
+            "enabled": true,
+            "dataPointXid": "DP_25799_ANALOG_VALUE_17",
+            "deviceName": "FCU-10107",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "offset_range_setpoint",
+            "enabled": true,
+            "dataPointXid": "DP_25799_ANALOG_VALUE_21",
+            "deviceName": "FCU-10107",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "discharge_fan_run_command",
+            "enabled": true,
+            "dataPointXid": "DP_25799_BINARY_VALUE_0",
+            "deviceName": "FCU-10107",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "discharge_fan_run_status",
+            "enabled": true,
+            "dataPointXid": "DP_25799_BINARY_VALUE_1",
+            "deviceName": "FCU-10107",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "offset_setpoint_night_reset",
+            "enabled": true,
+            "dataPointXid": "DP_25799_BINARY_VALUE_2",
+            "deviceName": "FCU-10107",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "discharge_air_temperature_sensor",
+            "enabled": true,
+            "dataPointXid": "DP_26099_ANALOG_VALUE_0",
+            "deviceName": "FCU-10110",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "return_air_temperature_sensor",
+            "enabled": true,
+            "dataPointXid": "DP_26099_ANALOG_VALUE_1",
+            "deviceName": "FCU-10110",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "zone_air_temperature_sensor",
+            "enabled": true,
+            "dataPointXid": "DP_26099_ANALOG_VALUE_2",
+            "deviceName": "FCU-10110",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "zone_air_co2_concentration_sensor",
+            "enabled": true,
+            "dataPointXid": "DP_26099_ANALOG_VALUE_3",
+            "deviceName": "FCU-10110",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "default_setpoint",
+            "enabled": true,
+            "dataPointXid": "DP_26099_ANALOG_VALUE_4",
+            "deviceName": "FCU-10110",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "zone_air_temperature_setpoint",
+            "enabled": true,
+            "dataPointXid": "DP_26099_ANALOG_VALUE_7",
+            "deviceName": "FCU-10110",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "supply_air_low_limit_setpoint",
+            "enabled": true,
+            "dataPointXid": "DP_26099_ANALOG_VALUE_8",
+            "deviceName": "FCU-10110",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "supply_air_high_limit_setpoint",
+            "enabled": true,
+            "dataPointXid": "DP_26099_ANALOG_VALUE_9",
+            "deviceName": "FCU-10110",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "zone_air_deadband_temperature_setpoint",
+            "enabled": true,
+            "dataPointXid": "DP_26099_ANALOG_VALUE_10",
+            "deviceName": "FCU-10110",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "heating_water_valve_percentage_command",
+            "enabled": true,
+            "dataPointXid": "DP_26099_ANALOG_VALUE_11",
+            "deviceName": "FCU-10110",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "chilled_water_valve_percentage_command",
+            "enabled": true,
+            "dataPointXid": "DP_26099_ANALOG_VALUE_12",
+            "deviceName": "FCU-10110",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "discharge_fan_speed_percentage_command",
+            "enabled": true,
+            "dataPointXid": "DP_26099_ANALOG_VALUE_13",
+            "deviceName": "FCU-10110",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "min_fan_speed_setpoint",
+            "enabled": true,
+            "dataPointXid": "DP_26099_ANALOG_VALUE_14",
+            "deviceName": "FCU-10110",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "max_fan_speed_setpoint",
+            "enabled": true,
+            "dataPointXid": "DP_26099_ANALOG_VALUE_15",
+            "deviceName": "FCU-10110",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "thermal_min_fan_threshold_setpoint",
+            "enabled": true,
+            "dataPointXid": "DP_26099_ANALOG_VALUE_16",
+            "deviceName": "FCU-10110",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "thermal_max_fan_threshold_setpoint",
+            "enabled": true,
+            "dataPointXid": "DP_26099_ANALOG_VALUE_17",
+            "deviceName": "FCU-10110",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "offset_range_setpoint",
+            "enabled": true,
+            "dataPointXid": "DP_26099_ANALOG_VALUE_21",
+            "deviceName": "FCU-10110",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "discharge_fan_run_command",
+            "enabled": true,
+            "dataPointXid": "DP_26099_BINARY_VALUE_0",
+            "deviceName": "FCU-10110",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "discharge_fan_run_status",
+            "enabled": true,
+            "dataPointXid": "DP_26099_BINARY_VALUE_1",
+            "deviceName": "FCU-10110",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "offset_setpoint_night_reset",
+            "enabled": true,
+            "dataPointXid": "DP_26099_BINARY_VALUE_2",
+            "deviceName": "FCU-10110",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "discharge_air_temperature_sensor",
+            "enabled": true,
+            "dataPointXid": "DP_26299_ANALOG_VALUE_0",
+            "deviceName": "FCU-10112",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "return_air_temperature_sensor",
+            "enabled": true,
+            "dataPointXid": "DP_26299_ANALOG_VALUE_1",
+            "deviceName": "FCU-10112",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "zone_air_temperature_sensor",
+            "enabled": true,
+            "dataPointXid": "DP_26299_ANALOG_VALUE_2",
+            "deviceName": "FCU-10112",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "zone_air_co2_concentration_sensor",
+            "enabled": true,
+            "dataPointXid": "DP_26299_ANALOG_VALUE_3",
+            "deviceName": "FCU-10112",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "default_setpoint",
+            "enabled": true,
+            "dataPointXid": "DP_26299_ANALOG_VALUE_4",
+            "deviceName": "FCU-10112",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "zone_air_temperature_setpoint",
+            "enabled": true,
+            "dataPointXid": "DP_26299_ANALOG_VALUE_7",
+            "deviceName": "FCU-10112",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "supply_air_low_limit_setpoint",
+            "enabled": true,
+            "dataPointXid": "DP_26299_ANALOG_VALUE_8",
+            "deviceName": "FCU-10112",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "supply_air_high_limit_setpoint",
+            "enabled": true,
+            "dataPointXid": "DP_26299_ANALOG_VALUE_9",
+            "deviceName": "FCU-10112",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "zone_air_deadband_temperature_setpoint",
+            "enabled": true,
+            "dataPointXid": "DP_26299_ANALOG_VALUE_10",
+            "deviceName": "FCU-10112",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "heating_water_valve_percentage_command",
+            "enabled": true,
+            "dataPointXid": "DP_26299_ANALOG_VALUE_11",
+            "deviceName": "FCU-10112",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "chilled_water_valve_percentage_command",
+            "enabled": true,
+            "dataPointXid": "DP_26299_ANALOG_VALUE_12",
+            "deviceName": "FCU-10112",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "discharge_fan_speed_percentage_command",
+            "enabled": true,
+            "dataPointXid": "DP_26299_ANALOG_VALUE_13",
+            "deviceName": "FCU-10112",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "min_fan_speed_setpoint",
+            "enabled": true,
+            "dataPointXid": "DP_26299_ANALOG_VALUE_14",
+            "deviceName": "FCU-10112",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "max_fan_speed_setpoint",
+            "enabled": true,
+            "dataPointXid": "DP_26299_ANALOG_VALUE_15",
+            "deviceName": "FCU-10112",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "thermal_min_fan_threshold_setpoint",
+            "enabled": true,
+            "dataPointXid": "DP_26299_ANALOG_VALUE_16",
+            "deviceName": "FCU-10112",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "thermal_max_fan_threshold_setpoint",
+            "enabled": true,
+            "dataPointXid": "DP_26299_ANALOG_VALUE_17",
+            "deviceName": "FCU-10112",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "offset_range_setpoint",
+            "enabled": true,
+            "dataPointXid": "DP_26299_ANALOG_VALUE_21",
+            "deviceName": "FCU-10112",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "discharge_fan_run_command",
+            "enabled": true,
+            "dataPointXid": "DP_26299_BINARY_VALUE_0",
+            "deviceName": "FCU-10112",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "discharge_fan_run_status",
+            "enabled": true,
+            "dataPointXid": "DP_26299_BINARY_VALUE_1",
+            "deviceName": "FCU-10112",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "offset_setpoint_night_reset",
+            "enabled": true,
+            "dataPointXid": "DP_26299_BINARY_VALUE_2",
+            "deviceName": "FCU-10112",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "discharge_air_temperature_sensor",
+            "enabled": true,
+            "dataPointXid": "DP_26399_ANALOG_VALUE_0",
+            "deviceName": "FCU-10113",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "return_air_temperature_sensor",
+            "enabled": true,
+            "dataPointXid": "DP_26399_ANALOG_VALUE_1",
+            "deviceName": "FCU-10113",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "zone_air_temperature_sensor",
+            "enabled": true,
+            "dataPointXid": "DP_26399_ANALOG_VALUE_2",
+            "deviceName": "FCU-10113",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "zone_air_co2_concentration_sensor",
+            "enabled": true,
+            "dataPointXid": "DP_26399_ANALOG_VALUE_3",
+            "deviceName": "FCU-10113",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "default_setpoint",
+            "enabled": true,
+            "dataPointXid": "DP_26399_ANALOG_VALUE_4",
+            "deviceName": "FCU-10113",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "zone_air_temperature_setpoint",
+            "enabled": true,
+            "dataPointXid": "DP_26399_ANALOG_VALUE_7",
+            "deviceName": "FCU-10113",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "supply_air_low_limit_setpoint",
+            "enabled": true,
+            "dataPointXid": "DP_26399_ANALOG_VALUE_8",
+            "deviceName": "FCU-10113",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "supply_air_high_limit_setpoint",
+            "enabled": true,
+            "dataPointXid": "DP_26399_ANALOG_VALUE_9",
+            "deviceName": "FCU-10113",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "zone_air_deadband_temperature_setpoint",
+            "enabled": true,
+            "dataPointXid": "DP_26399_ANALOG_VALUE_10",
+            "deviceName": "FCU-10113",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "heating_water_valve_percentage_command",
+            "enabled": true,
+            "dataPointXid": "DP_26399_ANALOG_VALUE_11",
+            "deviceName": "FCU-10113",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "chilled_water_valve_percentage_command",
+            "enabled": true,
+            "dataPointXid": "DP_26399_ANALOG_VALUE_12",
+            "deviceName": "FCU-10113",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "discharge_fan_speed_percentage_command",
+            "enabled": true,
+            "dataPointXid": "DP_26399_ANALOG_VALUE_13",
+            "deviceName": "FCU-10113",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "min_fan_speed_setpoint",
+            "enabled": true,
+            "dataPointXid": "DP_26399_ANALOG_VALUE_14",
+            "deviceName": "FCU-10113",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "max_fan_speed_setpoint",
+            "enabled": true,
+            "dataPointXid": "DP_26399_ANALOG_VALUE_15",
+            "deviceName": "FCU-10113",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "thermal_min_fan_threshold_setpoint",
+            "enabled": true,
+            "dataPointXid": "DP_26399_ANALOG_VALUE_16",
+            "deviceName": "FCU-10113",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "thermal_max_fan_threshold_setpoint",
+            "enabled": true,
+            "dataPointXid": "DP_26399_ANALOG_VALUE_17",
+            "deviceName": "FCU-10113",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "offset_range_setpoint",
+            "enabled": true,
+            "dataPointXid": "DP_26399_ANALOG_VALUE_21",
+            "deviceName": "FCU-10113",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "discharge_fan_run_command",
+            "enabled": true,
+            "dataPointXid": "DP_26399_BINARY_VALUE_0",
+            "deviceName": "FCU-10113",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "discharge_fan_run_status",
+            "enabled": true,
+            "dataPointXid": "DP_26399_BINARY_VALUE_1",
+            "deviceName": "FCU-10113",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "offset_setpoint_night_reset",
+            "enabled": true,
+            "dataPointXid": "DP_26399_BINARY_VALUE_2",
+            "deviceName": "FCU-10113",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "discharge_air_temperature_sensor",
+            "enabled": true,
+            "dataPointXid": "DP_26799_ANALOG_VALUE_0",
+            "deviceName": "FCU-10117",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "return_air_temperature_sensor",
+            "enabled": true,
+            "dataPointXid": "DP_26799_ANALOG_VALUE_1",
+            "deviceName": "FCU-10117",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "zone_air_temperature_sensor",
+            "enabled": true,
+            "dataPointXid": "DP_26799_ANALOG_VALUE_2",
+            "deviceName": "FCU-10117",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "zone_air_co2_concentration_sensor",
+            "enabled": true,
+            "dataPointXid": "DP_26799_ANALOG_VALUE_3",
+            "deviceName": "FCU-10117",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "default_setpoint",
+            "enabled": true,
+            "dataPointXid": "DP_26799_ANALOG_VALUE_4",
+            "deviceName": "FCU-10117",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "zone_air_temperature_setpoint",
+            "enabled": true,
+            "dataPointXid": "DP_26799_ANALOG_VALUE_7",
+            "deviceName": "FCU-10117",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "supply_air_low_limit_setpoint",
+            "enabled": true,
+            "dataPointXid": "DP_26799_ANALOG_VALUE_8",
+            "deviceName": "FCU-10117",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "supply_air_high_limit_setpoint",
+            "enabled": true,
+            "dataPointXid": "DP_26799_ANALOG_VALUE_9",
+            "deviceName": "FCU-10117",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "zone_air_deadband_temperature_setpoint",
+            "enabled": true,
+            "dataPointXid": "DP_26799_ANALOG_VALUE_10",
+            "deviceName": "FCU-10117",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "heating_water_valve_percentage_command",
+            "enabled": true,
+            "dataPointXid": "DP_26799_ANALOG_VALUE_11",
+            "deviceName": "FCU-10117",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "chilled_water_valve_percentage_command",
+            "enabled": true,
+            "dataPointXid": "DP_26799_ANALOG_VALUE_12",
+            "deviceName": "FCU-10117",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "discharge_fan_speed_percentage_command",
+            "enabled": true,
+            "dataPointXid": "DP_26799_ANALOG_VALUE_13",
+            "deviceName": "FCU-10117",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "min_fan_speed_setpoint",
+            "enabled": true,
+            "dataPointXid": "DP_26799_ANALOG_VALUE_14",
+            "deviceName": "FCU-10117",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "max_fan_speed_setpoint",
+            "enabled": true,
+            "dataPointXid": "DP_26799_ANALOG_VALUE_15",
+            "deviceName": "FCU-10117",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "thermal_min_fan_threshold_setpoint",
+            "enabled": true,
+            "dataPointXid": "DP_26799_ANALOG_VALUE_16",
+            "deviceName": "FCU-10117",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "thermal_max_fan_threshold_setpoint",
+            "enabled": true,
+            "dataPointXid": "DP_26799_ANALOG_VALUE_17",
+            "deviceName": "FCU-10117",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "offset_range_setpoint",
+            "enabled": true,
+            "dataPointXid": "DP_26799_ANALOG_VALUE_21",
+            "deviceName": "FCU-10117",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "discharge_fan_run_command",
+            "enabled": true,
+            "dataPointXid": "DP_26799_BINARY_VALUE_0",
+            "deviceName": "FCU-10117",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "discharge_fan_run_status",
+            "enabled": true,
+            "dataPointXid": "DP_26799_BINARY_VALUE_1",
+            "deviceName": "FCU-10117",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "offset_setpoint_night_reset",
+            "enabled": true,
+            "dataPointXid": "DP_26799_BINARY_VALUE_2",
+            "deviceName": "FCU-10117",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "discharge_air_temperature_sensor",
+            "enabled": true,
+            "dataPointXid": "DP_26899_ANALOG_VALUE_0",
+            "deviceName": "FCU-10118",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "return_air_temperature_sensor",
+            "enabled": true,
+            "dataPointXid": "DP_26899_ANALOG_VALUE_1",
+            "deviceName": "FCU-10118",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "zone_air_temperature_sensor",
+            "enabled": true,
+            "dataPointXid": "DP_26899_ANALOG_VALUE_2",
+            "deviceName": "FCU-10118",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "zone_air_co2_concentration_sensor",
+            "enabled": true,
+            "dataPointXid": "DP_26899_ANALOG_VALUE_3",
+            "deviceName": "FCU-10118",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "default_setpoint",
+            "enabled": true,
+            "dataPointXid": "DP_26899_ANALOG_VALUE_4",
+            "deviceName": "FCU-10118",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "zone_air_temperature_setpoint",
+            "enabled": true,
+            "dataPointXid": "DP_26899_ANALOG_VALUE_7",
+            "deviceName": "FCU-10118",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "supply_air_low_limit_setpoint",
+            "enabled": true,
+            "dataPointXid": "DP_26899_ANALOG_VALUE_8",
+            "deviceName": "FCU-10118",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "supply_air_high_limit_setpoint",
+            "enabled": true,
+            "dataPointXid": "DP_26899_ANALOG_VALUE_9",
+            "deviceName": "FCU-10118",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "zone_air_deadband_temperature_setpoint",
+            "enabled": true,
+            "dataPointXid": "DP_26899_ANALOG_VALUE_10",
+            "deviceName": "FCU-10118",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "heating_water_valve_percentage_command",
+            "enabled": true,
+            "dataPointXid": "DP_26899_ANALOG_VALUE_11",
+            "deviceName": "FCU-10118",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "chilled_water_valve_percentage_command",
+            "enabled": true,
+            "dataPointXid": "DP_26899_ANALOG_VALUE_12",
+            "deviceName": "FCU-10118",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "discharge_fan_speed_percentage_command",
+            "enabled": true,
+            "dataPointXid": "DP_26899_ANALOG_VALUE_13",
+            "deviceName": "FCU-10118",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "min_fan_speed_setpoint",
+            "enabled": true,
+            "dataPointXid": "DP_26899_ANALOG_VALUE_14",
+            "deviceName": "FCU-10118",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "max_fan_speed_setpoint",
+            "enabled": true,
+            "dataPointXid": "DP_26899_ANALOG_VALUE_15",
+            "deviceName": "FCU-10118",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "thermal_min_fan_threshold_setpoint",
+            "enabled": true,
+            "dataPointXid": "DP_26899_ANALOG_VALUE_16",
+            "deviceName": "FCU-10118",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "thermal_max_fan_threshold_setpoint",
+            "enabled": true,
+            "dataPointXid": "DP_26899_ANALOG_VALUE_17",
+            "deviceName": "FCU-10118",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "offset_range_setpoint",
+            "enabled": true,
+            "dataPointXid": "DP_26899_ANALOG_VALUE_21",
+            "deviceName": "FCU-10118",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "discharge_fan_run_command",
+            "enabled": true,
+            "dataPointXid": "DP_26899_BINARY_VALUE_0",
+            "deviceName": "FCU-10118",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "discharge_fan_run_status",
+            "enabled": true,
+            "dataPointXid": "DP_26899_BINARY_VALUE_1",
+            "deviceName": "FCU-10118",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        },
+        {
+            "name": "offset_setpoint_night_reset",
+            "enabled": true,
+            "dataPointXid": "DP_26899_BINARY_VALUE_2",
+            "deviceName": "FCU-10118",
+            "publisherXid": "PUB_UDMI_BACNET_CGWV-1"
+        }
+    ]
+}
