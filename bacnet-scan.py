@@ -184,77 +184,47 @@ def enumerate_device_points(bacnet, discovered_devices):
 
 def create_data(output_path, verbose, discovered_devices, network, devicesonly):
     devices = {}
-    devices_info = {}
     points = {}
+    
     for each in discovered_devices:
         name, vendor, address, device_id = each
-
-        custom_obj_list = None
-        
         sanitized_dev_name = sanitize_device_name(name)
 
-        devices[sanitized_dev_name] = BAC0.device(
-            address, device_id, network, poll=0, object_list=custom_obj_list
-        )
-
-        # devices_info[sanitized_dev_name] = make_device_info(output_path, verbose, each, network)
-
-        if not devicesonly:
-            points[sanitized_dev_name] = make_points(output_path, verbose, devices[sanitized_dev_name], sanitized_dev_name)
-    # return (devices, devices_info, points)
-    return (devices,points)
+        try:
+            devices[sanitized_dev_name] = BAC0.device(
+                address, device_id, network, poll=0, object_list=None
+            )
+            
+            if not devicesonly:
+                points[sanitized_dev_name] = make_points(output_path, verbose, devices[sanitized_dev_name], sanitized_dev_name)
+        
+        except Exception as e:
+            print(f"Failed to initialize/enumerate device {name} ({address}): {e}")
+            continue
+            
+    return (devices, points)
 
 def make_device_info_simple(output_path, verbose, dev, network):
-    lst = {}
+    data = {
+        "device_name": "N/A", "device_vendor": "N/A", "device_model": "N/A",
+        "device_firmware": "N/A", "description": "N/A", "location": "N/A",
+        "device_application_version": "N/A", "device_serial_number": "N/A",
+        "ip_address": dev[2], "device_id": dev[3]
+    }
     
     try:
-        address, device_id = dev
-    except:
-        name, manufacturer, address, device_id = dev
-
-    # device = BAC0.device(
-    #         address, device_id, network, poll=0
-    #     )
-    
-    # try:
-    #     ipaddress.ip_address(address)
-    # except ValueError:
-    #     pass
-    
-    try:
-        object_name, vendor_name, firmware_version, model_name, serial_number, description, location, application_software_version = (
-            network.readMultiple(
-                f"{address} device {device_id} objectName vendorName"
-                " firmwareRevision modelName serialNumber description location applicationSoftwareVersion"
-            )
+        props = network.readMultiple(
+            f"{dev[2]} device {dev[3]} objectName vendorName "
+            "firmwareRevision modelName serialNumber description location applicationSoftwareVersion"
         )
+        data.update({
+            "device_name": props.get('objectName', 'N/A'),
+            "device_vendor": props.get('vendorName', 'N/A'),
+        })
+    except Exception as e:
+        print(f"Skipping detailed read for {dev[2]} due to: {e}")
 
-        # logging.info("object_name: %s vendor_name: %s firmware: %s model: %s serial: %s description: %s location: %s",  
-        #               object_name, vendor_name, firmware_version, model_name, serial_number, description, location, application_software_version)
-        # print(f"object_name: {object_name} vendor_name: %s firmware: %s model: %s serial: %s description: %s location: %s",  
-        #                vendor_name, firmware_version, model_name, serial_number, description, location, application_software_version)
-
-    except (BAC0.core.io.IOExceptions.SegmentationNotSupported, Exception) as err:
-        # logging.exception(f"error reading from {address}/{device_id}")
-        print(f"error reading from {address}/{device_id}")
-    
-    sanitized_dev_name = sanitize_device_name(object_name)
-    
-    lst = {
-            "device_name": object_name,
-            "sanitized_device_name": sanitized_dev_name,
-            "device_vendor": vendor_name,
-            "device_model": model_name,
-            "device_firmware": firmware_version,
-            "description": description,
-            "location": location,
-            "device_application_version": application_software_version,
-            "device_serial_number": serial_number,
-            "ip_address": address,
-            "device_id": device_id
-            # "network": network_number
-        }
-    df = pd.DataFrame.from_dict(lst, orient="index")
+    df = pd.DataFrame.from_dict(data, orient="index")
     df.index.name = "property"
     df.rename(columns={0: "value"}, inplace=True)
     
@@ -599,11 +569,13 @@ def main():
     bacnet_devices_df.to_csv(os.path.join(output_path, "%s_devicelist_simple.csv" % SHEET_FILENAME_NAME))
 
     for device in discovered_devices:
-        # print(dir(device))
-        address = device[0]
-        device_id = device[1]
-        # print(address, device_id)
-        devices_df = pd.concat( [devices_df, make_device_info_simple(output_path, args.verbose, device, network=bacnet)], ignore_index=True, axis=1)
+        try:
+            device_data = make_device_info_simple(output_path, args.verbose, device, network=bacnet)
+            if not device_data.empty:
+                devices_df = pd.concat([devices_df, device_data], ignore_index=True, axis=1)
+        except Exception as e:
+            print(f"Critical error processing device {device[3]}: {e}")
+            continue
         
     # pprint(devices_df)
 
