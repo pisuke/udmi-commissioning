@@ -13,7 +13,7 @@ __author__ = "Francesco Anselmo"
 __copyright__ = "Copyright 2025"
 __credits__ = ["Francesco Anselmo"]
 __license__ = "MIT"
-__version__ = "0.42"
+__version__ = "0.43"
 __maintainer__ = "Francesco Anselmo"
 __email__ = "francesco.anselmo@gmail.com"
 __status__ = "Dev"
@@ -26,7 +26,6 @@ from tabulate import tabulate
 import os
 import re
 import sys
-# import ipaddress
 import logging
 import time
 
@@ -55,7 +54,6 @@ def show_title():
 def find_single_device(bacnet, device_ip):
     """
     Finds a single BACnet device at a known IP address.
-    Returns a list containing one device tuple: [(address, instance_id)].
     """
     print(f"Sending targeted Who-Is to {device_ip}...")
     bacnet.whois_router_to_network(network=None, destination=device_ip)
@@ -157,7 +155,6 @@ def create_data(output_path, verbose, discovered_devices, network, devicesonly):
         try:
             name, vendor, address, device_id = each
         except ValueError:
-            # Fallback if discovery returns fewer elements
             address, device_id = each[0], each[1]
             name = f"Unknown_Device_{device_id}"
             vendor = "Unknown"
@@ -189,8 +186,6 @@ def make_device_info_simple(output_path, verbose, dev, network):
     except:
         name, manufacturer, address, device_id = dev
 
-    # Pre-initialize variables so we don't hit UnboundLocalError
-    # if the read fails entirely.
     object_name = f"Unknown_{device_id}"
     vendor_name = ""
     firmware_version = ""
@@ -206,7 +201,6 @@ def make_device_info_simple(output_path, verbose, dev, network):
             " firmwareRevision modelName serialNumber description location applicationSoftwareVersion"
         )
         
-        # Make sure we actually got the 8 values back before trying to unpack
         if results and len(results) == 8:
             object_name, vendor_name, firmware_version, model_name, serial_number, description, location, application_software_version = results
             
@@ -247,7 +241,7 @@ def make_device_info(output_path, verbose, dev, network):
         device = BAC0.device(address, device_id, network, poll=0)
     except Exception as e:
         print(f"Error initializing BAC0 device {name}: {e}")
-        return pd.DataFrame() # Return empty if it fails totally
+        return pd.DataFrame() 
     
     try:
         description = device.bacnet_properties.get("description", "")
@@ -308,14 +302,12 @@ def make_points(output_path, verbose, dev, dev_name):
     lst = {}
     sanitized_dev_name = sanitize_device_name(dev_name)
     
-    # Check if dev.points exists or iterable
     if not hasattr(dev, 'points'):
         print(f"No points found or accessible for {dev_name}")
         return pd.DataFrame()
         
     for each in dev.points:
         try:
-            # Using getattr to safely fetch properties if they fail
             point_name = getattr(each.properties, 'name', 'unknown_point')
             units_state = getattr(each.properties, 'units_state', '')
             desc = getattr(each.properties, 'description', '')
@@ -337,7 +329,7 @@ def make_points(output_path, verbose, dev, dev_name):
             }
         except Exception as e:
             print(f"Warning: skipped reading a point on {dev_name} due to error: {e}")
-            continue # Move on to the next point
+            continue 
             
     df = pd.DataFrame.from_dict(lst, orient="index")
     df.index.name = "point_name"
@@ -347,50 +339,74 @@ def make_points(output_path, verbose, dev, dev_name):
         print(tabulate(df, headers='keys', tablefmt='psql'))
     return df
 
+def sanitize_excel_sheet_name(input_string):
+    """
+    Sanitizes a string for use as an Excel worksheet tab name.
+    Excel strictly enforces: max 31 chars, no [ ] : * ? / \ and cannot be 'History'
+    """
+    s = str(input_string)
+    # Remove all characters that break Excel sheet names
+    s = re.sub(r'[\\/*?:\[\]]', '_', s)
+    
+    if s.lower() == 'history':
+        s = 'History_dev'
+        
+    if not s.strip():
+        s = "Unknown_Device"
+        
+    # Enforce absolute 31 character limit
+    s = s[:31]
+    return s
+
 def make_sheet(devices_df, dfs, sheet_filename):
-    with pd.ExcelWriter(sheet_filename) as writer:
-        devices_df.to_excel(writer, sheet_name="devices")
-        for k, v in dfs.items():
-            try:
-                v.to_excel(writer, sheet_name=k)
-            except Exception as e:
-                print(f"Could not write sheet {k} to Excel: {e}")
-                pass
-    print("Devices point lists written to file %s" % sheet_filename)
+    print("Compiling final Excel spreadsheet...")
+    try:
+        with pd.ExcelWriter(sheet_filename) as writer:
+            devices_df.to_excel(writer, sheet_name="devices")
+            used_sheet_names = {"devices"}
+            
+            for k, v in dfs.items():
+                # Aggressive Excel validation
+                safe_sheet_name = sanitize_excel_sheet_name(k)
+                
+                # Prevent duplicate sheet names caused by 31-char truncation
+                original_safe = safe_sheet_name
+                counter = 1
+                while safe_sheet_name in used_sheet_names:
+                    suffix = f"_{counter}"
+                    safe_sheet_name = original_safe[:31-len(suffix)] + suffix
+                    counter += 1
+                    
+                used_sheet_names.add(safe_sheet_name)
+                
+                try:
+                    v.to_excel(writer, sheet_name=safe_sheet_name)
+                except Exception as e:
+                    print(f"Could not write sheet '{safe_sheet_name}' to Excel: {e}")
+                    pass
+        print(f"Devices point lists written successfully to file {sheet_filename}")
+    except Exception as e:
+        print(f"Failed to finalize the Excel file: {e}")
 
 def sanitize_unix_command(input_string):
-    """
-    Sanitizes a string for use in a Unix command line by removing or replacing
-    characters that could cause issues.
-    """
     offending_unix_chars = r"[;&|<>`'$(){}\[\]#\s:/]"
     sanitized_string = ""
     try:
         sanitized_string = re.sub(offending_unix_chars, "_", str(input_string))
     except:
         sanitized_string = "Unknown"
-
     return sanitized_string  
 
 def sanitize_spreadsheet_tabs(input_string):
-    """
-    Sanitizes a string for use in a spreadsheet by removing or replacing
-    tab characters that would create new columns.
-    """
     sanitized_string = str(input_string).replace('\t', '_')
     return sanitized_string  
 
 def sanitize_device_name(input_string):
-    """
-    Sanitizes a string for both Unix command line (including colons) and
-    spreadsheet tabs.
-    """
     sanitized_unix = sanitize_unix_command(input_string)
     sanitized_both = sanitize_spreadsheet_tabs(sanitized_unix)
     return sanitized_both
 
 def string_to_integer_list(comma_separated_string):
-  """Converts a comma-separated string of numbers to a list of integers."""
   if not comma_separated_string.strip():
     return []
 
@@ -410,15 +426,15 @@ def main():
     parser = argparse.ArgumentParser()
     group = parser.add_mutually_exclusive_group()
     group.add_argument("-v", "--verbose", action="store_true", default=False, help="increase the verbosity level (optional)")
-    parser.add_argument("-x", "--export",  default="bacnet-scan.xlsx", help="spreadsheet file name for scan results (optional)")
+    parser.add_argument("-x", "--export",  default="bacnet-scan.xlsx", help="spreadsheet file name for scan results")
     parser.add_argument("-a", "--address", default="", help="IP address of BACnet interface in Mango (optional)")
     parser.add_argument("-n", "--networks", default="", help="comma separated target list of BACnet networks (optional)")
-    parser.add_argument("-b", "--bacnetid", default="", help="restrict the scan to only one device with this BACnet ID (optional)")
-    parser.add_argument("-r", "--range", default="",  help="restrict the scan to a device range in the format BACnet_ID_start,BACnet_ID_finish")
-    parser.add_argument("-d", "--deviceonly", action="store_true", default=False, help="only execute a BACnet WHOIS device scan with no point enumeration")
+    parser.add_argument("-b", "--bacnetid", default="", help="restrict the scan to only one device with this BACnet ID")
+    parser.add_argument("-r", "--range", default="",  help="restrict the scan to a device range")
+    parser.add_argument("-d", "--deviceonly", action="store_true", default=False, help="only execute a BACnet WHOIS scan")
     parser.add_argument("-g", "--globalscan", action="store_true", default=False, help="execute a global broadcast BACnet scan")
-    parser.add_argument("-s", "--subnet_broadcast", default="", help="restrict the scan to a specific subnet broadcast address (optional)")
-    parser.add_argument("-i", "--ip", default="", help="restrict the scan to a specific device with this IP address (optional)")
+    parser.add_argument("-s", "--subnet_broadcast", default="", help="restrict the scan to a specific subnet broadcast address")
+    parser.add_argument("-i", "--ip", default="", help="restrict the scan to a specific device with this IP address")
 
     args = parser.parse_args()
 
@@ -508,7 +524,6 @@ def main():
         
     devices_df = pd.DataFrame()
     
-    # Try creating the simple list, catching errors if discovery format is weird
     try:
         bacnet_devices_df = pd.DataFrame(discovered_devices, columns=['device_name', 'manufacturer', 'address', 'device_id'])
         bacnet_devices_df.index.name = "number"
@@ -520,7 +535,6 @@ def main():
         try:
             address = device[0]
             device_id = device[1]
-            # Will not crash now due to the updated make_device_info_simple function
             dev_info = make_device_info_simple(output_path, args.verbose, device, network=bacnet)
             if not dev_info.empty:
                 devices_df = pd.concat([devices_df, dev_info], ignore_index=True, axis=1)
