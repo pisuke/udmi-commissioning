@@ -361,19 +361,22 @@ def sanitize_excel_sheet_name(input_string):
 def make_sheet(devices_df, dfs, sheet_filename):
     print("Compiling final Excel spreadsheet...")
     try:
-        with pd.ExcelWriter(sheet_filename) as writer:
-            devices_df.to_excel(writer, sheet_name="devices")
-            used_sheet_names = {"devices"}
+        with pd.ExcelWriter(sheet_filename, engine='xlsxwriter') as writer:
+            # 1. Sanitize the main "devices" tab too
+            devices_df.to_excel(writer, sheet_name="devices_list")
+            used_sheet_names = {"devices_list"}
             
             for k, v in dfs.items():
-                # Aggressive Excel validation
-                safe_sheet_name = sanitize_excel_sheet_name(k)
+                # 2. Force conversion to string and sanitize
+                raw_name = str(k)
+                safe_sheet_name = sanitize_excel_sheet_name(raw_name)
                 
-                # Prevent duplicate sheet names caused by 31-char truncation
+                # 3. Handle duplicates
                 original_safe = safe_sheet_name
                 counter = 1
                 while safe_sheet_name in used_sheet_names:
                     suffix = f"_{counter}"
+                    # Ensure we leave room for the counter
                     safe_sheet_name = original_safe[:31-len(suffix)] + suffix
                     counter += 1
                     
@@ -382,11 +385,11 @@ def make_sheet(devices_df, dfs, sheet_filename):
                 try:
                     v.to_excel(writer, sheet_name=safe_sheet_name)
                 except Exception as e:
-                    print(f"Could not write sheet '{safe_sheet_name}' to Excel: {e}")
+                    print(f"Could not write sheet '{safe_sheet_name}' (from '{raw_name}'): {e}")
                     pass
         print(f"Devices point lists written successfully to file {sheet_filename}")
     except Exception as e:
-        print(f"Failed to finalize the Excel file: {e}")
+        print(f"Failed to finalize the Excel file. Details: {e}")
 
 def sanitize_unix_command(input_string):
     offending_unix_chars = r"[;&|<>`'$(){}\[\]#\s:/]"
