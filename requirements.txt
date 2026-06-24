@@ -62,3 +62,4 @@ tabulate
 google-cloud-pubsub
 pyfiglet
 tk
+xlsxwriter
