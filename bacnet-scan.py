@@ -11,9 +11,9 @@
 
 __author__ = "Francesco Anselmo"
 __copyright__ = "Copyright 2025"
-__credits__ = ["Francesco Anselmo"]
+__credits__ = ["Francesco Anselmo", "Viktoras Cesnulevicius"]
 __license__ = "MIT"
-__version__ = "0.43"
+__version__ = "0.44"
 __maintainer__ = "Francesco Anselmo"
 __email__ = "francesco.anselmo@gmail.com"
 __status__ = "Dev"
@@ -172,7 +172,8 @@ def create_data(output_path, verbose, discovered_devices, network, devicesonly):
 
         if not devicesonly:
             try:
-                points[sanitized_dev_name] = make_points(output_path, verbose, devices[sanitized_dev_name], sanitized_dev_name)
+                combined_id_name = f"{device_id}_{sanitized_dev_name}"
+                points[combined_id_name] = make_points(output_path, verbose, devices[sanitized_dev_name], combined_id_name, sanitized_dev_name)
             except Exception as e:
                 print(f"Skipping points for device {sanitized_dev_name} due to enumeration error: {e}")
                 
@@ -298,7 +299,7 @@ def make_device_info(output_path, verbose, dev, network):
         print(tabulate(df, headers='keys', tablefmt='psql'))
     return df
 
-def make_points(output_path, verbose, dev, dev_name):
+def make_points(output_path, verbose, dev, file_name_identifier, dev_name):
     lst = {}
     sanitized_dev_name = sanitize_device_name(dev_name)
     
@@ -334,7 +335,7 @@ def make_points(output_path, verbose, dev, dev_name):
     df = pd.DataFrame.from_dict(lst, orient="index")
     df.index.name = "point_name"
     
-    df.to_csv(os.path.join(output_path, "%s.csv" % sanitized_dev_name))
+    df.to_csv(os.path.join(output_path, "%s.csv" % file_name_identifier))
     if verbose:
         print(tabulate(df, headers='keys', tablefmt='psql'))
     return df
@@ -423,6 +424,31 @@ def string_to_integer_list(comma_separated_string):
       print(f"Warning: Invalid integer format: '{s.strip()}', skipping.")
   return integer_list
     
+def should_exclude_device(device, exclude_list):
+    """Checks if a discovered device should be excluded from the scan.
+    """
+    if not exclude_list:
+        return False
+    
+    try:
+        if len(device) == 2:
+            address, device_id = device
+        else:
+            name, manufacturer, address, device_id = device
+    except Exception:
+        return False
+        
+    device_id_str = str(device_id).strip()
+    
+    for excl in exclude_list:
+        excl = excl.strip()
+        if not excl:
+            continue
+        if device_id_str == excl:
+            return True
+            
+    return False
+    
 def main():
     show_title()
 
@@ -438,6 +464,7 @@ def main():
     parser.add_argument("-g", "--globalscan", action="store_true", default=False, help="execute a global broadcast BACnet scan")
     parser.add_argument("-s", "--subnet_broadcast", default="", help="restrict the scan to a specific subnet broadcast address")
     parser.add_argument("-i", "--ip", default="", help="restrict the scan to a specific device with this IP address")
+    parser.add_argument("-e", "--exclude", default="", help="comma separated list of BACnet device IDs to exclude from scan (optional)")
 
     args = parser.parse_args()
 
@@ -471,9 +498,9 @@ def main():
     
     try:
         if BACNET_IP_ADDRESS != "":        
-            bacnet = BAC0.lite(ip=BACNET_IP_ADDRESS)
+            bacnet = BAC0.lite(ip=BACNET_IP_ADDRESS, deviceId=4194301, modelName="bacnet-scan")
         else:
-            bacnet = BAC0.lite()
+            bacnet = BAC0.lite(deviceId=4194301, modelName="bacnet-scan")
     except Exception as e:
         print(f"Failed to initialize BAC0 client: {e}")
         sys.exit(1)
@@ -519,6 +546,16 @@ def main():
     except Exception as e:
         print(f"Discovery phase encountered a critical error: {e}")
         discovered_devices = getattr(bacnet, 'devices', [])
+
+    exclude_list = [x.strip() for x in args.exclude.split(',')] if args.exclude else []
+    if exclude_list:
+        filtered_devices = []
+        for dev in discovered_devices:
+            if should_exclude_device(dev, exclude_list):
+                print(f"Excluding device from scan: {dev}")
+                continue
+            filtered_devices.append(dev)
+        discovered_devices = filtered_devices
 
     output_path = "bacnet_devices"
 
