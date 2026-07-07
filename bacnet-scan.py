@@ -13,7 +13,7 @@ __author__ = "Francesco Anselmo"
 __copyright__ = "Copyright 2025"
 __credits__ = ["Francesco Anselmo", "Viktoras Cesnulevicius"]
 __license__ = "MIT"
-__version__ = "0.44"
+__version__ = "0.45"
 __maintainer__ = "Francesco Anselmo"
 __email__ = "francesco.anselmo@gmail.com"
 __status__ = "Dev"
@@ -343,7 +343,6 @@ def make_points(output_path, verbose, dev, file_name_identifier, dev_name):
 def sanitize_excel_sheet_name(input_string):
     """
     Sanitizes a string for use as an Excel worksheet tab name.
-    Excel strictly enforces: max 31 chars, no [ ] : * ? / \ and cannot be 'History'
     """
     s = str(input_string)
     # Remove all characters that break Excel sheet names
@@ -498,9 +497,9 @@ def main():
     
     try:
         if BACNET_IP_ADDRESS != "":        
-            bacnet = BAC0.lite(ip=BACNET_IP_ADDRESS, deviceId=4194301, modelName="bacnet-scan")
+            bacnet = BAC0.lite(ip=BACNET_IP_ADDRESS, deviceId=4194300, modelName="bacnet-scan")
         else:
-            bacnet = BAC0.lite(deviceId=4194301, modelName="bacnet-scan")
+            bacnet = BAC0.lite(deviceId=4194300, modelName="bacnet-scan")
     except Exception as e:
         print(f"Failed to initialize BAC0 client: {e}")
         sys.exit(1)
