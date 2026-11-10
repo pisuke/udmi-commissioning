@@ -26,3 +26,12 @@
 ./pyinstaller-appbuilder-sheet2mangojson-ubuntu1804-podman.sh
 ./pyinstaller-appbuilder-sheet2mangojson-ubuntu2004-podman.sh
 ./pyinstaller-appbuilder-sheet2mangojson-ubuntu2204-podman.sh
+
+./pyinstaller-appbuilder-bacnet-write-debian11-podman.sh
+./pyinstaller-appbuilder-bacnet-write-debian12-podman.sh
+./pyinstaller-appbuilder-bacnet-write-debian13-podman.sh
+./pyinstaller-appbuilder-bacnet-write-rocky810-podman.sh
+./pyinstaller-appbuilder-bacnet-write-ubuntu1604-podman.sh
+./pyinstaller-appbuilder-bacnet-write-ubuntu1804-podman.sh
+./pyinstaller-appbuilder-bacnet-write-ubuntu2004-podman.sh
+./pyinstaller-appbuilder-bacnet-write-ubuntu2204-podman.sh
